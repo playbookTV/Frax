@@ -15,15 +15,27 @@ export interface BlurLayer {
 	opacity: number; // 0-100
 }
 
+export type QualityMode = 'draft' | 'standard' | 'high';
+export type ColorMode = 'custom' | 'extract';
+
 export interface EffectSettings {
+	// Pattern
 	stripeCount: number;
 	stripeWidthMode: WidthMode;
 	widthVariation: number; // 0-100
 	gradientOffset: number; // 0-100
+
+	// Color
+	colorMode: ColorMode;
 	palette: RGB[];
+
+	// Glass
 	blurLayers: BlurLayer[];
 	blendMode: BlendMode;
 	opacity: number; // 0-100
+
+	// Performance
+	quality: QualityMode;
 	randomSeed: number;
 }
 
@@ -34,6 +46,7 @@ export function getDefaultSettings(): EffectSettings {
 		stripeWidthMode: 'uniform',
 		widthVariation: 20,
 		gradientOffset: 0,
+		colorMode: 'custom',
 		palette: [
 			{ r: 0.4, g: 0.3, b: 0.9, a: 1 },
 			{ r: 0.2, g: 0.6, b: 1, a: 1 },
@@ -45,6 +58,7 @@ export function getDefaultSettings(): EffectSettings {
 		],
 		blendMode: 'OVERLAY',
 		opacity: 70,
+		quality: 'standard',
 		randomSeed: Date.now(),
 	};
 }
@@ -61,7 +75,18 @@ export async function generateEffect(
 		y: 'y' in targetNode ? targetNode.y : 0,
 	};
 
-	const stripeCount = Math.max(4, Math.floor(settings.stripeCount));
+	// Apply simple quality-based overrides
+	const qualityProfile =
+		settings.quality === 'draft'
+			? { stripes: 40, blurScale: 0.7 }
+			: settings.quality === 'high'
+			? { stripes: 140, blurScale: 1.3 }
+			: { stripes: 80, blurScale: 1.0 };
+
+	const stripeCount = Math.max(
+		4,
+		Math.floor(settings.stripeCount || qualityProfile.stripes),
+	);
 	const frame = figma.createFrame();
 	frame.name = 'Fractal Glass Effect';
 	frame.resize(bounds.width, bounds.height);
@@ -96,10 +121,13 @@ export async function generateEffect(
 		stripe.width *= scale;
 	}
 
-	// Create stripes with simple two-stop gradients based on palette
-	const palette = settings.palette.length
-		? settings.palette
-		: getDefaultSettings().palette;
+	// Choose palette: either preset/custom or extracted from target
+	const basePalette =
+		settings.colorMode === 'extract'
+			? extractPaletteFromNode(targetNode) ?? settings.palette
+			: settings.palette;
+
+	const palette = basePalette.length ? basePalette : getDefaultSettings().palette;
 
 	for (let i = 0; i < stripes.length; i++) {
 		const stripe = stripes[i];
@@ -165,7 +193,8 @@ export async function generateEffect(
 			clone.effects = [
 				{
 					type: 'LAYER_BLUR',
-					radius: layer.radius,
+					blurType: 'NORMAL',
+					radius: layer.radius * qualityProfile.blurScale,
 					visible: true,
 				},
 			];
@@ -210,4 +239,36 @@ function random(seed: number): number {
 	const x = Math.sin(seed) * 10000;
 	return x - Math.floor(x);
 }
+
+function extractPaletteFromNode(node: SceneNode): RGB[] | null {
+	// Very small, cheap extraction: sample solid fills on the node itself
+	if ('fills' in node) {
+		const fills = node.fills;
+		if (Array.isArray(fills)) {
+			const colors: RGB[] = [];
+			for (const fill of fills) {
+				if (fill.type === 'SOLID') {
+					colors.push({
+						r: fill.color.r,
+						g: fill.color.g,
+						b: fill.color.b,
+						a: 'opacity' in fill ? fill.opacity ?? 1 : 1,
+					});
+				}
+			}
+			if (colors.length) return colors;
+		}
+	}
+
+	// If selection is a frame/group, also try immediate children
+	if ('children' in node) {
+		for (const child of node.children) {
+			const childPalette = extractPaletteFromNode(child as SceneNode);
+			if (childPalette && childPalette.length) return childPalette;
+		}
+	}
+
+	return null;
+}
+
 

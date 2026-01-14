@@ -54,6 +54,9 @@ const App = () => {
 	const [intensity, setIntensity] = useState(70);
 	const [hasSelection, setHasSelection] = useState(false);
 	const [status, setStatus] = useState<Status>(null);
+	const [widthMode, setWidthMode] = useState<'uniform' | 'random'>('uniform');
+	const [quality, setQuality] = useState<'draft' | 'standard' | 'high'>('standard');
+	const [matchColors, setMatchColors] = useState(false);
 
 	useEffect(() => {
 		const handler = (event: MessageEvent) => {
@@ -86,17 +89,19 @@ const App = () => {
 		if (!selectedPreset) return;
 
 		const settings = {
-			stripeCount: 80,
-			stripeWidthMode: 'uniform',
-			widthVariation: 20,
+			stripeCount: quality === 'draft' ? 40 : quality === 'high' ? 140 : 80,
+			stripeWidthMode: widthMode,
+			widthVariation: widthMode === 'random' ? 35 : 0,
 			gradientOffset: 0,
+			colorMode: matchColors ? 'extract' : 'custom',
 			palette: selectedPreset.palette,
 			blurLayers: [
-				{ radius: 20, opacity: 80 },
-				{ radius: 40, opacity: 40 },
+				{ radius: 16, opacity: 70 },
+				{ radius: 32, opacity: 40 },
 			],
 			blendMode: 'OVERLAY',
 			opacity: intensity,
+			quality,
 			randomSeed: Date.now(),
 		};
 
@@ -278,6 +283,44 @@ const App = () => {
 							style={slider}
 						/>
 					</div>
+
+					<div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+						<select
+							value={quality}
+							onChange={(e) => setQuality(e.target.value as typeof quality)}
+							style={{ flex: 1, fontSize: 11 }}
+						>
+							<option value="draft">Draft (fast)</option>
+							<option value="standard">Standard</option>
+							<option value="high">High quality</option>
+						</select>
+						<select
+							value={widthMode}
+							onChange={(e) => setWidthMode(e.target.value as typeof widthMode)}
+							style={{ flex: 1, fontSize: 11 }}
+						>
+							<option value="uniform">Uniform stripes</option>
+							<option value="random">Varied stripes</option>
+						</select>
+					</div>
+
+					<label
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: 6,
+							fontSize: 10,
+							color: '#718096',
+							marginTop: 4,
+						}}
+					>
+						<input
+							type="checkbox"
+							checked={matchColors}
+							onChange={(e) => setMatchColors(e.target.checked)}
+						/>
+						Match colors from selected layer
+					</label>
 				</>
 			)}
 
