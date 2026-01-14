@@ -1,73 +1,42 @@
-// Core effect generation for Fractal Glass
-// Creates vertical stripe gradients and optional blur overlay
+// Glass Overlay Effect Generator
+// Creates procedural glass texture using white/transparent fills only
 
-export interface RGB {
-	r: number;
-	g: number;
-	b: number;
-	a?: number;
-}
-
-export type WidthMode = 'uniform' | 'random';
-
-export interface BlurLayer {
-	radius: number;
-	opacity: number; // 0-100
-}
-
+export type WidthMode = 'uniform' | 'random' | 'fibonacci' | 'fractal';
 export type QualityMode = 'draft' | 'standard' | 'high';
-export type ColorMode = 'custom' | 'extract';
 
-export interface EffectSettings {
-	// Pattern
-	stripeCount: number;
-	stripeWidthMode: WidthMode;
-	widthVariation: number; // 0-100
-	gradientOffset: number; // 0-100
+export interface GlassSettings {
+	// Pattern Generation
+	stripeDensity: number; // 20-200 vertical divisions
+	widthVariation: number; // 0-100% (uniform vs chaotic)
 
-	// Color
-	colorMode: ColorMode;
-	palette: RGB[];
+	// Glass Properties
+	frosting: number; // 0-100% blur amount
+	clarity: number; // 0-100% base transparency
+	refractionIntensity: number; // 0-100% refraction line visibility
 
-	// Glass
-	blurLayers: BlurLayer[];
-	blendMode: BlendMode;
-	opacity: number; // 0-100
-
-	// Performance
+	// Advanced
+	blurZoneCount: number; // 3-10 frosted regions
 	quality: QualityMode;
 	randomSeed: number;
 }
 
-// Default settings aligned with PRD/TRD concepts (simplified MVP)
-export function getDefaultSettings(): EffectSettings {
+export function getDefaultSettings(): GlassSettings {
 	return {
-		stripeCount: 80,
-		stripeWidthMode: 'uniform',
-		widthVariation: 20,
-		gradientOffset: 0,
-		colorMode: 'custom',
-		palette: [
-			{ r: 0.4, g: 0.3, b: 0.9, a: 1 },
-			{ r: 0.2, g: 0.6, b: 1, a: 1 },
-			{ r: 0, g: 0.8, b: 0.6, a: 1 },
-		],
-		blurLayers: [
-			{ radius: 20, opacity: 80 },
-			{ radius: 40, opacity: 40 },
-		],
-		blendMode: 'OVERLAY',
-		opacity: 70,
+		stripeDensity: 80,
+		widthVariation: 30,
+		frosting: 50,
+		clarity: 70,
+		refractionIntensity: 30,
+		blurZoneCount: 5,
 		quality: 'standard',
 		randomSeed: Date.now(),
 	};
 }
 
-export async function generateEffect(
+export function generateEffect(
 	targetNode: SceneNode,
-	settings: EffectSettings,
-): Promise<GroupNode> {
-	// Get bounds from the target node
+	settings: GlassSettings,
+): FrameNode {
 	const bounds = {
 		width: 'width' in targetNode ? targetNode.width : 0,
 		height: 'height' in targetNode ? targetNode.height : 0,
@@ -75,200 +44,219 @@ export async function generateEffect(
 		y: 'y' in targetNode ? targetNode.y : 0,
 	};
 
-	// Apply simple quality-based overrides
+	// Quality profiles
 	const qualityProfile =
 		settings.quality === 'draft'
-			? { stripes: 40, blurScale: 0.7 }
+			? { stripeMult: 0.5, lineMult: 0.5, zones: 3 }
 			: settings.quality === 'high'
-			? { stripes: 140, blurScale: 1.3 }
-			: { stripes: 80, blurScale: 1.0 };
+				? { stripeMult: 1.75, lineMult: 1.75, zones: 8 }
+				: { stripeMult: 1.0, lineMult: 1.0, zones: 5 };
 
-	const stripeCount = Math.max(
-		4,
-		Math.floor(settings.stripeCount || qualityProfile.stripes),
+	const container = figma.createFrame();
+	container.name = 'Glass Overlay';
+	container.resize(bounds.width, bounds.height);
+	container.x = bounds.x;
+	container.y = bounds.y;
+	container.fills = [];
+
+	// Layer 1: Displacement Stripes
+	const stripeCount = Math.floor(settings.stripeDensity * qualityProfile.stripeMult);
+	const stripes = generateDisplacementStripes(
+		bounds,
+		stripeCount,
+		settings.widthVariation,
+		settings.randomSeed,
 	);
-	const frame = figma.createFrame();
-	frame.name = 'Fractal Glass Effect';
-	frame.resize(bounds.width, bounds.height);
-	frame.x = bounds.x;
-	frame.y = bounds.y;
-	frame.fills = [];
+	stripes.forEach((s) => container.appendChild(s));
 
-	// Compute stripes across the width
+	// Layer 2: Refraction Lines
+	const lineCount = Math.floor(stripeCount * 0.5 * qualityProfile.lineMult);
+	const lines = generateRefractionLines(
+		bounds,
+		lineCount,
+		settings.refractionIntensity,
+		settings.randomSeed,
+	);
+	lines.forEach((l) => container.appendChild(l));
+
+	// Layer 3: Blur Zones
+	const zoneCount = qualityProfile.zones;
+	const zones = generateBlurZones(
+		bounds,
+		zoneCount,
+		settings.frosting,
+		settings.randomSeed,
+	);
+	zones.forEach((z) => container.appendChild(z));
+
+	// Composite settings
+	container.blendMode = 'OVERLAY';
+	container.opacity = settings.clarity / 100;
+
+	return container;
+}
+
+// Layer 1: Displacement Stripes
+function generateDisplacementStripes(
+	bounds: { width: number; height: number },
+	count: number,
+	variation: number,
+	seed: number,
+): RectangleNode[] {
 	const stripes: { x: number; width: number }[] = [];
-	const baseWidth = bounds.width / stripeCount;
+	const baseWidth = bounds.width / count;
 	let currentX = 0;
 
-	for (let i = 0; i < stripeCount; i++) {
+	for (let i = 0; i < count; i++) {
 		let width = baseWidth;
-
-		if (settings.stripeWidthMode === 'random' && settings.widthVariation > 0) {
-			const variation =
-				(random(settings.randomSeed + i) - 0.5) *
-				(settings.widthVariation / 100) *
-				2; // -1..1 scaled by variation
-			width = baseWidth * (1 + variation);
+		if (variation > 0) {
+			const vary = (random(seed + i) - 0.5) * (variation / 100) * 2;
+			width = baseWidth * (1 + vary);
 		}
-
 		stripes.push({ x: currentX, width });
 		currentX += width;
 	}
 
-	// Normalize stripes to fit exactly into the frame width
-	const scale = bounds.width / currentX;
+	// Normalize to fit exactly
+	const totalWidth = stripes.reduce((sum, s) => sum + s.width, 0);
+	const scale = bounds.width / totalWidth;
+	currentX = 0;
 	for (const stripe of stripes) {
-		stripe.x *= scale;
 		stripe.width *= scale;
+		stripe.x = currentX;
+		currentX += stripe.width;
 	}
 
-	// Choose palette: either preset/custom or extracted from target
-	const basePalette =
-		settings.colorMode === 'extract'
-			? extractPaletteFromNode(targetNode) ?? settings.palette
-			: settings.palette;
-
-	const palette = basePalette.length ? basePalette : getDefaultSettings().palette;
-
-	for (let i = 0; i < stripes.length; i++) {
-		const stripe = stripes[i];
-
-		const t0 =
-			((i / Math.max(1, stripes.length - 1)) +
-				settings.gradientOffset / 100) %
-			1;
-		const t1 = (t0 + 0.25) % 1;
-
-		const colorStart = samplePalette(palette, t0);
-		const colorEnd = samplePalette(palette, t1);
-
+	return stripes.map((stripe, i) => {
 		const rect = figma.createRectangle();
 		rect.x = stripe.x;
 		rect.y = 0;
-		rect.resize(stripe.width, bounds.height);
+		rect.resize(Math.max(0.1, stripe.width), bounds.height);
 
-		const gradientFill: GradientPaint = {
-			type: 'GRADIENT_LINEAR',
-			gradientTransform: [
-				[1, 0, 0],
-				[0, 1, 0],
-			],
-			gradientStops: [
-				{
-					position: 0,
-					color: {
-						r: colorStart.r,
-						g: colorStart.g,
-						b: colorStart.b,
-						a: colorStart.a ?? 1,
-					},
-				},
-				{
-					position: 1,
-					color: {
-						r: colorEnd.r,
-						g: colorEnd.g,
-						b: colorEnd.b,
-						a: colorEnd.a ?? 1,
-					},
-				},
-			],
-		};
+		// White-to-transparent gradient (vertical)
+		const opacityTop = 0.05 + random(seed + i * 2) * 0.15;
+		const opacityMid = 0.15 + random(seed + i * 3) * 0.10;
+		const opacityBot = 0.05 + random(seed + i * 4) * 0.15;
 
-		rect.fills = [gradientFill];
-		frame.appendChild(rect);
+		rect.fills = [
+			{
+				type: 'GRADIENT_LINEAR',
+				gradientTransform: [
+					[1, 0, 0],
+					[0, 1, 0],
+				],
+				gradientStops: [
+					{ position: 0, color: { r: 1, g: 1, b: 1, a: opacityTop } },
+					{ position: 0.5, color: { r: 1, g: 1, b: 1, a: opacityMid } },
+					{ position: 1, color: { r: 1, g: 1, b: 1, a: opacityBot } },
+				],
+			},
+		];
+
+		return rect;
+	});
+}
+
+// Layer 2: Refraction Lines
+function generateRefractionLines(
+	bounds: { width: number; height: number },
+	count: number,
+	intensity: number,
+	seed: number,
+): RectangleNode[] {
+	const spacing = calculateFibonacciSpacing(count, bounds.width, seed);
+
+	return spacing.map((x, i) => {
+		const line = figma.createRectangle();
+		const thickness = 1 + random(seed + i * 5) * 2; // 1-3px
+		line.resize(thickness, bounds.height);
+		line.x = x;
+		line.y = 0;
+
+		line.fills = [
+			{
+				type: 'SOLID',
+				color: { r: 1, g: 1, b: 1 },
+				opacity: (intensity / 100) * 0.1, // 0-0.1
+			},
+		];
+
+		line.effects = [
+			{
+				type: 'BACKGROUND_BLUR',
+				radius: 8,
+				visible: true,
+			},
+		];
+
+		return line;
+	});
+}
+
+// Layer 3: Blur Zones
+function generateBlurZones(
+	bounds: { width: number; height: number },
+	count: number,
+	frosting: number,
+	seed: number,
+): RectangleNode[] {
+	const zones: RectangleNode[] = [];
+
+	for (let i = 0; i < count; i++) {
+		const zone = figma.createRectangle();
+
+		// Random size and position
+		const width = bounds.width * (0.2 + random(seed + i * 6) * 0.3);
+		const height = bounds.height * (0.3 + random(seed + i * 7) * 0.4);
+		zone.resize(width, height);
+		zone.x = random(seed + i * 8) * (bounds.width - width);
+		zone.y = random(seed + i * 9) * (bounds.height - height);
+
+		// Subtle white fill
+		zone.fills = [
+			{
+				type: 'SOLID',
+				color: { r: 1, g: 1, b: 1 },
+				opacity: 0.03 + random(seed + i * 10) * 0.05,
+			},
+		];
+
+		// Heavy blur for frosting
+		zone.effects = [
+			{
+				type: 'BACKGROUND_BLUR',
+				radius: (frosting / 100) * 40, // 0-40px
+				visible: true,
+			},
+		];
+
+		zones.push(zone);
 	}
 
-	// If blurLayers specified, create grouped blur overlay
-	let resultGroup: GroupNode;
-	if (settings.blurLayers.length > 0) {
-		const group = figma.group([], figma.currentPage);
+	return zones;
+}
 
-		// Base (no blur)
-		const baseClone = frame.clone();
-		group.appendChild(baseClone);
+// Utility: Fibonacci-based spacing
+function calculateFibonacciSpacing(
+	count: number,
+	totalWidth: number,
+	seed: number,
+): number[] {
+	const positions: number[] = [];
+	const phi = (1 + Math.sqrt(5)) / 2;
 
-		for (const layer of settings.blurLayers) {
-			if (layer.opacity <= 0) continue;
-			const clone = frame.clone();
-			clone.effects = [
-				{
-					type: 'LAYER_BLUR',
-					blurType: 'NORMAL',
-					radius: layer.radius * qualityProfile.blurScale,
-					visible: true,
-				},
-			];
-			clone.opacity = layer.opacity / 100;
-			group.appendChild(clone);
-		}
-
-		resultGroup = group;
-	} else {
-		resultGroup = figma.group([frame], figma.currentPage);
+	for (let i = 0; i < count; i++) {
+		// Use golden ratio for natural spacing
+		const t = (i * phi) % 1;
+		const x = t * totalWidth;
+		positions.push(x);
 	}
 
-	resultGroup.blendMode = settings.blendMode;
-	resultGroup.opacity = settings.opacity / 100;
-
-	return resultGroup;
+	return positions.sort((a, b) => a - b);
 }
 
-function samplePalette(palette: RGB[], t: number): RGB {
-	if (palette.length === 1) return palette[0];
-	const clamped = Math.max(0, Math.min(1, t));
-	const scaled = clamped * (palette.length - 1);
-	const i = Math.floor(scaled);
-	const j = Math.min(i + 1, palette.length - 1);
-	const localT = scaled - i;
-	const c1 = palette[i];
-	const c2 = palette[j];
-	return {
-		r: lerp(c1.r, c2.r, localT),
-		g: lerp(c1.g, c2.g, localT),
-		b: lerp(c1.b, c2.b, localT),
-		a: lerp(c1.a ?? 1, c2.a ?? 1, localT),
-	};
-}
-
-function lerp(a: number, b: number, t: number): number {
-	return a + (b - a) * t;
-}
-
+// Utility: Seeded random
 function random(seed: number): number {
-	// Simple deterministic pseudo-random generator (0..1)
 	const x = Math.sin(seed) * 10000;
 	return x - Math.floor(x);
 }
-
-function extractPaletteFromNode(node: SceneNode): RGB[] | null {
-	// Very small, cheap extraction: sample solid fills on the node itself
-	if ('fills' in node) {
-		const fills = node.fills;
-		if (Array.isArray(fills)) {
-			const colors: RGB[] = [];
-			for (const fill of fills) {
-				if (fill.type === 'SOLID') {
-					colors.push({
-						r: fill.color.r,
-						g: fill.color.g,
-						b: fill.color.b,
-						a: 'opacity' in fill ? fill.opacity ?? 1 : 1,
-					});
-				}
-			}
-			if (colors.length) return colors;
-		}
-	}
-
-	// If selection is a frame/group, also try immediate children
-	if ('children' in node) {
-		for (const child of node.children) {
-			const childPalette = extractPaletteFromNode(child as SceneNode);
-			if (childPalette && childPalette.length) return childPalette;
-		}
-	}
-
-	return null;
-}
-
-

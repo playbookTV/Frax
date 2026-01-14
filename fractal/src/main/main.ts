@@ -1,7 +1,9 @@
-import { generateEffect, getDefaultSettings, type EffectSettings } from './effectGenerator';
+import { showUI } from '@create-figma-plugin/utilities';
+import { generateEffect, getDefaultSettings } from './effectGenerator';
+import type { GlassSettings } from './effectGenerator';
 
-export default function () {
-	figma.showUI(__html__, { width: 320, height: 500, themeColors: true });
+export default function main() {
+	showUI({ width: 320, height: 500 });
 
 	// Send initial selection state
 	postSelectionState();
@@ -11,7 +13,7 @@ export default function () {
 		postSelectionState();
 	});
 
-	figma.ui.onmessage = async (msg: { type: string; settings?: EffectSettings }) => {
+	figma.ui.onmessage = (msg: { type: string; settings?: GlassSettings }) => {
 		if (msg.type === 'apply-effect') {
 			const selection = figma.currentPage.selection;
 
@@ -33,11 +35,10 @@ export default function () {
 				return;
 			}
 
+			const settings = msg.settings ?? getDefaultSettings();
+
 			try {
-				const settings = msg.settings ?? getDefaultSettings();
-
-				const group = await generateEffect(targetNode, settings);
-
+				const group = generateEffect(targetNode, settings);
 				// Position over target
 				if ('x' in targetNode && 'y' in targetNode) {
 					group.x = targetNode.x;
@@ -51,9 +52,8 @@ export default function () {
 			} catch (error) {
 				figma.ui.postMessage({
 					type: 'error',
-					message: `Error applying effect: ${
-						error instanceof Error ? error.message : 'Unknown error'
-					}`,
+					message: `Error applying effect: ${error instanceof Error ? error.message : 'Unknown error'
+						}`,
 				});
 			}
 		}

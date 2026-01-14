@@ -1,10 +1,1 @@
-{
-	"documentAccess": "dynamic-page",
-	"api": "1.0.0",
-	"networkAccess": { "allowedDomains": ["none"] },
-	"id": "com.Fractal",
-	"name": "Fractal",
-	"main": "src/main/main.ts",
-	"ui": "src/ui/ui.tsx",
-	"editorType": ["figma", "figjam"]
-}
+{"api":"1.0.0","editorType":["figma"],"id":"1460301131752718105","name":"Fractal Glass","main":"build/main.js","ui":"build/ui.js"}

@@ -3,7 +3,12 @@
 		"composite": true,
 		"module": "ESNext",
 		"moduleResolution": "bundler",
-		"typeRoots": ["../../node_modules/@figma", "../../node_modules/@types"]
+		"typeRoots": [
+			"../../node_modules/@figma",
+			"../../node_modules/@types"
+		]
 	},
-	"include": ["**/*.ts", "../vite-env.d.ts"]
+	"include": [
+		"**/*.ts"
+	]
 }

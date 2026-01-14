@@ -2,9 +2,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "plugma dev",
-    "build": "plugma build",
-    "release": "plugma release",
+    "dev": "build-figma-plugin --watch",
+    "build": "build-figma-plugin --minify",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
@@ -12,27 +11,29 @@
     "playwright": "npx playwright test"
   },
   "devDependencies": {
-    "vite": "^7.0.0",
     "@figma/plugin-typings": "^1.100.2",
-    "plugma": "^2.2.3",
-    "globals": "^15.11.0",
-    "@vitejs/plugin-react": "^4.3.3",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "tslib": "^2.8.0",
-    "typescript": "~5.6.2",
-    "shadcn-ui": "latest"
+    "@create-figma-plugin/build": "latest",
+    "typescript": "~5.6.2"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "@create-figma-plugin/utilities": "latest",
+    "@create-figma-plugin/ui": "latest",
+    "preact": ">=10",
     "prettier": "latest",
-    "typescript": "latest",
     "eslint": "9",
     "@eslint/js": "^9.38.0",
     "@typescript-eslint/parser": "^8.46.2",
     "typescript-eslint": "8",
     "vitest": "^4.0.0",
     "@playwright/test": "latest"
+  },
+  "figma-plugin": {
+    "name": "Fractal Glass",
+    "id": "1460301131752718105",
+    "main": "src/main/main.ts",
+    "ui": "src/ui/ui.tsx",
+    "editorType": [
+      "figma"
+    ]
   }
 }

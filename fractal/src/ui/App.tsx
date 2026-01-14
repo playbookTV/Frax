@@ -1,67 +1,24 @@
-import { useEffect, useState } from 'react';
-
-type Preset = {
-	id: string;
-	name: string;
-	gradient: string;
-	palette: { r: number; g: number; b: number; a?: number }[];
-};
+import { h } from 'preact';
+import { useEffect, useState } from 'preact/hooks';
 
 type Status = { type: 'error' | 'success'; message: string } | null;
 
-const PRESETS: Preset[] = [
-	{
-		id: 'purple-dream',
-		name: 'Purple Dream',
-		gradient: 'linear-gradient(90deg, #667eea, #f093fb)',
-		palette: [
-			{ r: 0.4, g: 0.3, b: 0.9, a: 1 },
-			{ r: 0.94, g: 0.57, b: 0.95, a: 1 },
-		],
-	},
-	{
-		id: 'ocean-breeze',
-		name: 'Ocean Breeze',
-		gradient: 'linear-gradient(90deg, #4facfe, #00f2fe)',
-		palette: [
-			{ r: 0.2, g: 0.6, b: 1, a: 1 },
-			{ r: 0, g: 0.95, b: 1, a: 1 },
-		],
-	},
-	{
-		id: 'emerald-glow',
-		name: 'Emerald Glow',
-		gradient: 'linear-gradient(90deg, #43e97b, #38f9d7)',
-		palette: [
-			{ r: 0, g: 0.8, b: 0.6, a: 1 },
-			{ r: 0.14, g: 0.98, b: 0.84, a: 1 },
-		],
-	},
-	{
-		id: 'sunset-blaze',
-		name: 'Sunset Blaze',
-		gradient: 'linear-gradient(90deg, #fa709a, #fee140)',
-		palette: [
-			{ r: 1, g: 0.44, b: 0.6, a: 1 },
-			{ r: 1, g: 0.88, b: 0.25, a: 1 },
-		],
-	},
-];
-
 const App = () => {
-	const [mode, setMode] = useState<'quick' | 'advanced'>('quick');
-	const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
-	const [intensity, setIntensity] = useState(70);
+	// Glass Settings State
+	const [stripeDensity, setStripeDensity] = useState(80);
+	const [widthVariation, setWidthVariation] = useState(30);
+	const [frosting, setFrosting] = useState(50);
+	const [clarity, setClarity] = useState(70);
+	const [refractionIntensity, setRefractionIntensity] = useState(30);
+	const [quality, setQuality] = useState<'draft' | 'standard' | 'high'>('standard');
+
+	// UI State
 	const [hasSelection, setHasSelection] = useState(false);
 	const [status, setStatus] = useState<Status>(null);
-	const [widthMode, setWidthMode] = useState<'uniform' | 'random'>('uniform');
-	const [quality, setQuality] = useState<'draft' | 'standard' | 'high'>('standard');
-	const [matchColors, setMatchColors] = useState(false);
 
 	useEffect(() => {
 		const handler = (event: MessageEvent) => {
-			// Plugma / Figma plugin messages arrive under pluginMessage
-			const msg = (event.data as any).pluginMessage ?? event.data;
+			const msg = event.data.pluginMessage ?? event.data;
 			if (!msg || typeof msg !== 'object') return;
 
 			if (msg.type === 'selection-changed' || msg.type === 'init') {
@@ -81,26 +38,14 @@ const App = () => {
 		return () => window.removeEventListener('message', handler);
 	}, []);
 
-	const selectedPreset = PRESETS.find((p) => p.id === selectedPresetId) ?? null;
-
-	const canApply = hasSelection && !!selectedPreset;
-
 	const applyEffect = () => {
-		if (!selectedPreset) return;
-
 		const settings = {
-			stripeCount: quality === 'draft' ? 40 : quality === 'high' ? 140 : 80,
-			stripeWidthMode: widthMode,
-			widthVariation: widthMode === 'random' ? 35 : 0,
-			gradientOffset: 0,
-			colorMode: matchColors ? 'extract' : 'custom',
-			palette: selectedPreset.palette,
-			blurLayers: [
-				{ radius: 16, opacity: 70 },
-				{ radius: 32, opacity: 40 },
-			],
-			blendMode: 'OVERLAY',
-			opacity: intensity,
+			stripeDensity,
+			widthVariation,
+			frosting,
+			clarity,
+			refractionIntensity,
+			blurZoneCount: 5,
 			quality,
 			randomSeed: Date.now(),
 		};
@@ -118,222 +63,147 @@ const App = () => {
 
 	const renderStatus = () => {
 		if (!status) return null;
-		const style: React.CSSProperties = {
-			padding: 8,
-			borderRadius: 4,
-			fontSize: 11,
-			marginBottom: 8,
+		const style = {
+			padding: '8px',
+			borderRadius: '4px',
+			fontSize: '11px',
+			marginBottom: '12px',
 			backgroundColor: status.type === 'error' ? '#fed7d7' : '#c6f6d5',
 			color: status.type === 'error' ? '#c53030' : '#22543d',
 		};
 		return <div style={style}>{status.message}</div>;
 	};
 
-	const container: React.CSSProperties = {
-		display: 'flex',
-		flexDirection: 'column',
-		gap: 12,
-		padding: 12,
-		height: '100%',
-	};
-
-	const header: React.CSSProperties = {
-		display: 'flex',
-		flexDirection: 'column',
-		gap: 2,
-		marginBottom: 4,
-	};
-
-	const title: React.CSSProperties = {
-		fontSize: 14,
-		fontWeight: 600,
-		color: '#667eea',
-	};
-
-	const subtitle: React.CSSProperties = {
-		fontSize: 11,
-		color: '#718096',
-	};
-
-	const modeBar: React.CSSProperties = {
-		display: 'flex',
-		gap: 6,
-	};
-
-	const modeButton = (value: 'quick' | 'advanced'): React.CSSProperties => ({
-		flex: 1,
-		padding: '6px 8px',
-		borderRadius: 4,
-		fontSize: 11,
-		fontWeight: 500,
-		textAlign: 'center',
-		cursor: 'pointer',
-		border: '1px solid ' + (mode === value ? '#667eea' : '#e2e8f0'),
-		background: mode === value ? '#667eea' : '#ffffff',
-		color: mode === value ? '#ffffff' : '#2d3748',
-	});
-
-	const gallery: React.CSSProperties = {
-		display: 'grid',
-		gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-		gap: 8,
-	};
-
-	const card = (id: string): React.CSSProperties => ({
-		position: 'relative',
-		borderRadius: 8,
-		overflow: 'hidden',
-		border: `2px solid ${selectedPresetId === id ? '#667eea' : '#e2e8f0'}`,
-		height: 72,
-		cursor: 'pointer',
-		boxShadow:
-			selectedPresetId === id ? '0 4px 12px rgba(102, 126, 234, 0.35)' : 'none',
-		transition: 'transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease',
-	});
-
-	const intensityLabel: React.CSSProperties = {
-		display: 'flex',
-		justifyContent: 'space-between',
-		fontSize: 10,
-		color: '#718096',
-		marginBottom: 4,
-	};
-
-	const slider: React.CSSProperties = {
-		width: '100%',
-	};
-
-	const applyButton: React.CSSProperties = {
-		width: '100%',
-		padding: '10px 8px',
-		borderRadius: 4,
-		border: 'none',
-		fontSize: 12,
-		fontWeight: 600,
-		cursor: canApply ? 'pointer' : 'not-allowed',
-		background: canApply ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#a0aec0',
-		color: '#ffffff',
-		textAlign: 'center',
-	};
-
-	const helperText: React.CSSProperties = {
-		fontSize: 10,
-		color: '#a0aec0',
-	};
-
 	return (
-		<div style={container}>
-			<header style={header}>
-				<div style={title}>Fractal Glass</div>
-				<div style={subtitle}>One click for magic, infinite clicks for mastery</div>
+		<div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px', height: '100%' }}>
+			<header>
+				<div style={{ fontSize: '16px', fontWeight: 600, color: '#667eea', marginBottom: '4px' }}>
+					Fractal Glass
+				</div>
+				<div style={{ fontSize: '11px', color: '#718096' }}>
+					Procedural glass overlay effect
+				</div>
 			</header>
-
-			<div style={modeBar}>
-				<button
-					type="button"
-					style={modeButton('quick')}
-					onClick={() => setMode('quick')}
-				>
-					Quick Apply
-				</button>
-				<button
-					type="button"
-					style={modeButton('advanced')}
-					onClick={() => setMode('advanced')}
-					disabled
-				>
-					Advanced (soon)
-				</button>
-			</div>
 
 			{renderStatus()}
 
-			{mode === 'quick' && (
-				<>
-					<div style={gallery}>
-						{PRESETS.map((preset) => (
-							<button
-								type="button"
-								key={preset.id}
-								style={card(preset.id)}
-								onClick={() => setSelectedPresetId(preset.id)}
-							>
-								<div
-									style={{
-										position: 'absolute',
-										inset: 0,
-										background: preset.gradient,
-									}}
-								/>
-							</button>
-						))}
+			<div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, overflowY: 'auto' }}>
+				{/* Stripe Density */}
+				<div>
+					<div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#718096', marginBottom: '6px' }}>
+						<span>Stripe Density</span>
+						<span>{stripeDensity}</span>
 					</div>
+					<input
+						type="range"
+						min={20}
+						max={200}
+						value={stripeDensity}
+						onChange={(e) => setStripeDensity(Number((e.target as HTMLInputElement).value))}
+						style={{ width: '100%' }}
+					/>
+				</div>
 
-					<div>
-						<div style={intensityLabel}>
-							<span>Subtle</span>
-							<span>Intense</span>
-						</div>
-						<input
-							type="range"
-							min={10}
-							max={100}
-							value={intensity}
-							onChange={(e) => setIntensity(Number(e.target.value))}
-							style={slider}
-						/>
+				{/* Width Variation */}
+				<div>
+					<div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#718096', marginBottom: '6px' }}>
+						<span>Width Variation</span>
+						<span>{widthVariation}%</span>
 					</div>
+					<input
+						type="range"
+						min={0}
+						max={100}
+						value={widthVariation}
+						onChange={(e) => setWidthVariation(Number((e.target as HTMLInputElement).value))}
+						style={{ width: '100%' }}
+					/>
+				</div>
 
-					<div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-						<select
-							value={quality}
-							onChange={(e) => setQuality(e.target.value as typeof quality)}
-							style={{ flex: 1, fontSize: 11 }}
-						>
-							<option value="draft">Draft (fast)</option>
-							<option value="standard">Standard</option>
-							<option value="high">High quality</option>
-						</select>
-						<select
-							value={widthMode}
-							onChange={(e) => setWidthMode(e.target.value as typeof widthMode)}
-							style={{ flex: 1, fontSize: 11 }}
-						>
-							<option value="uniform">Uniform stripes</option>
-							<option value="random">Varied stripes</option>
-						</select>
+				{/* Frosting */}
+				<div>
+					<div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#718096', marginBottom: '6px' }}>
+						<span>Frosting</span>
+						<span>{frosting}%</span>
 					</div>
+					<input
+						type="range"
+						min={0}
+						max={100}
+						value={frosting}
+						onChange={(e) => setFrosting(Number((e.target as HTMLInputElement).value))}
+						style={{ width: '100%' }}
+					/>
+				</div>
 
-					<label
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: 6,
-							fontSize: 10,
-							color: '#718096',
-							marginTop: 4,
-						}}
+				{/* Clarity */}
+				<div>
+					<div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#718096', marginBottom: '6px' }}>
+						<span>Clarity</span>
+						<span>{clarity}%</span>
+					</div>
+					<input
+						type="range"
+						min={0}
+						max={100}
+						value={clarity}
+						onChange={(e) => setClarity(Number((e.target as HTMLInputElement).value))}
+						style={{ width: '100%' }}
+					/>
+				</div>
+
+				{/* Refraction Intensity */}
+				<div>
+					<div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#718096', marginBottom: '6px' }}>
+						<span>Refraction</span>
+						<span>{refractionIntensity}%</span>
+					</div>
+					<input
+						type="range"
+						min={0}
+						max={100}
+						value={refractionIntensity}
+						onChange={(e) => setRefractionIntensity(Number((e.target as HTMLInputElement).value))}
+						style={{ width: '100%' }}
+					/>
+				</div>
+
+				{/* Quality */}
+				<div>
+					<div style={{ fontSize: '11px', color: '#718096', marginBottom: '6px' }}>Quality</div>
+					<select
+						value={quality}
+						onChange={(e) => setQuality((e.target as HTMLSelectElement).value as typeof quality)}
+						style={{ width: '100%', fontSize: '11px', padding: '6px' }}
 					>
-						<input
-							type="checkbox"
-							checked={matchColors}
-							onChange={(e) => setMatchColors(e.target.checked)}
-						/>
-						Match colors from selected layer
-					</label>
-				</>
-			)}
+						<option value="draft">Draft (fast)</option>
+						<option value="standard">Standard</option>
+						<option value="high">High quality</option>
+					</select>
+				</div>
+			</div>
 
-			<button type="button" style={applyButton} onClick={applyEffect} disabled={!canApply}>
-				{!hasSelection
-					? 'Select a frame or group'
-					: !selectedPreset
-					? 'Select a preset'
-					: 'Apply Effect'}
+			<button
+				type="button"
+				onClick={applyEffect}
+				disabled={!hasSelection}
+				style={{
+					width: '100%',
+					padding: '12px',
+					borderRadius: '4px',
+					border: 'none',
+					fontSize: '12px',
+					fontWeight: 600,
+					cursor: hasSelection ? 'pointer' : 'not-allowed',
+					background: hasSelection ? 'linear-gradient(135deg, #667eea, #764ba2)' : '#a0aec0',
+					color: '#ffffff',
+				}}
+			>
+				{hasSelection ? 'Apply Glass Effect' : 'Select a frame or group'}
 			</button>
 
-			<div style={helperText}>
-				Effects are non-destructive. Use Cmd/Ctrl+Z to undo.
+			<div style={{ fontSize: '10px', color: '#a0aec0', textAlign: 'center' }}>
+				Effect is non-destructive. Use Cmd/Ctrl+Z to undo.
 			</div>
 		</div>
 	);
