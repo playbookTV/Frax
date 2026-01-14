@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractal Glass - Technical Requirements Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #48bb78;
+        }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #48bb78;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 24px;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+        
+        .version {
+            font-size: 14px;
+            color: #718096;
+            font-style: italic;
+        }
+        
+        .doc-info {
+            background: #f0fff4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        
+        .doc-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .doc-info-item {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .doc-info-label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2f855a;
+            margin: 30px 0 15px;
+        }
+        
+        h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #718096;
+            margin: 20px 0 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .code-comment {
+            color: #9ca3af;
+        }
+        
+        .code-keyword {
+            color: #f687b3;
+        }
+        
+        .code-function {
+            color: #76e4f7;
+        }
+        
+        .code-string {
+            color: #9ae6b4;
+        }
+        
+        .code-number {
+            color: #fbb6ce;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th {
+            background: #48bb78;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        tr:hover {
+            background: #f7fafc;
+        }
+        
+        .tech-card {
+            background: #f7fafc;
+            border-left: 4px solid #48bb78;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .architecture-diagram {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .layer-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        
+        .arrow {
+            font-size: 30px;
+            color: #cbd5e0;
+            margin: 10px 0;
+        }
+        
+        .warning-box {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-box {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .module-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .module-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2f855a;
+            margin-bottom: 10px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Fractal Glass</h1>
+            <div class="subtitle">Technical Requirements Document</div>
+            <div class="version">Version 1.0 | January 2026</div>
+        </div>
+        
+        <div class="doc-info">
+            <div class="doc-info-grid">
+                <div class="doc-info-item">
+                    <span class="doc-info-label">Technical Lead:</span>
+                    <span>Leslie (Founder, Ovalay Studios)</span>
+                </div>
+                <div class="doc-info-item">
+                    <span class="doc-info-label">Last Updated:</span>
+                    <span>January 14, 2026</span>
+                </div>
+                <div class="doc-info-item">
+                    <span class="doc-info-label">Status:</span>
+                    <span>Draft - Pending Review</span>
+                </div>
+                <div class="doc-info-item">
+                    <span class="doc-info-label">Target Release:</span>
+                    <span>Q2 2026</span>
+                </div>
+            </div>
+        </div>
+
+        <h2>Technical Overview</h2>
+        <p>Fractal Glass is implemented as a Figma plugin utilizing the Figma Plugin API. The architecture follows a client-side processing model where all effect generation occurs within the Figma plugin sandbox environment. The system employs procedural generation algorithms to create glass effects through programmatic manipulation of Figma vector primitives and blur effects.</p>
+
+        <h3>Technology Stack</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Technology</th>
+                    <th>Version</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Plugin Code</td>
+                    <td>TypeScript</td>
+                    <td>5.0+</td>
+                    <td>Main plugin logic with Figma API access</td>
+                </tr>
+                <tr>
+                    <td>UI Framework</td>
+                    <td>HTML/CSS/JavaScript</td>
+                    <td>ES2020+</td>
+                    <td>Plugin interface in iframe sandbox</td>
+                </tr>
+                <tr>
+                    <td>Build System</td>
+                    <td>esbuild</td>
+                    <td>Latest</td>
+                    <td>Fast bundling and compilation</td>
+                </tr>
+                <tr>
+                    <td>Testing</td>
+                    <td>Jest + Testing Library</td>
+                    <td>Latest</td>
+                    <td>Unit and integration tests</td>
+                </tr>
+                <tr>
+                    <td>Color Math</td>
+                    <td>chroma.js</td>
+                    <td>2.4+</td>
+                    <td>Color space conversions and interpolation</td>
+                </tr>
+                <tr>
+                    <td>Storage</td>
+                    <td>Figma clientStorage API</td>
+                    <td>-</td>
+                    <td>Settings persistence</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>System Architecture</h2>
+
+        <h3>High-Level Architecture</h3>
+        <p>The plugin architecture separates concerns into three primary layers: presentation (UI), business logic (effect generation), and data management (settings persistence).</p>
+
+        <div class="architecture-diagram">
+            <div class="layer-box">UI Layer (HTML/CSS/JS in iframe)</div>
+            <div class="arrow">↓↑ postMessage</div>
+            <div class="layer-box">Plugin Code Layer (TypeScript + Figma API)</div>
+            <div class="arrow">↓↑ API Calls</div>
+            <div class="layer-box">Data Layer (clientStorage + Figma Scene Graph)</div>
+        </div>
+
+        <div class="info-box">
+            <strong>Communication Pattern:</strong> The UI and plugin code communicate via postMessage. The UI sends commands and parameters, the plugin code executes operations on the Figma scene graph, and returns results.
+        </div>
+
+        <h3>Component Architecture</h3>
+
+        <div class="module-card">
+            <div class="module-title">1. Effect Generator Module</div>
+            <p>Responsible for creating the visual effect by generating and arranging Figma primitives according to user parameters.</p>
+            <h4>Key Classes:</h4>
+            <ul>
+                <li><strong>StripeGenerator</strong> - Creates individual vertical stripe elements</li>
+                <li><strong>GradientBuilder</strong> - Generates gradient stops with color interpolation</li>
+                <li><strong>BlurCompositor</strong> - Applies multi-layer blur effects</li>
+                <li><strong>EffectComposer</strong> - Orchestrates overall effect generation</li>
+            </ul>
+        </div>
+
+        <div class="module-card">
+            <div class="module-title">2. Color System Module</div>
+            <p>Handles all color-related operations including palette generation, extraction, and interpolation.</p>
+            <h4>Key Classes:</h4>
+            <ul>
+                <li><strong>ColorExtractor</strong> - Samples dominant colors from selected layers</li>
+                <li><strong>ColorInterpolator</strong> - Interpolates between colors in various color spaces</li>
+                <li><strong>PaletteGenerator</strong> - Creates complementary and harmonious palettes</li>
+            </ul>
+        </div>
+
+        <div class="module-card">
+            <div class="module-title">3. Preset Manager Module</div>
+            <p>Manages saving, loading, and organizing effect presets.</p>
+            <h4>Key Classes:</h4>
+            <ul>
+                <li><strong>PresetStorage</strong> - Handles local storage persistence</li>
+                <li><strong>PresetSerializer</strong> - Converts presets to/from JSON</li>
+                <li><strong>PresetLibrary</strong> - Manages built-in and custom presets</li>
+            </ul>
+        </div>
+
+        <div class="module-card">
+            <div class="module-title">4. Performance Optimizer Module</div>
+            <p>Optimizes rendering performance based on layer dimensions and quality settings.</p>
+            <h4>Key Classes:</h4>
+            <ul>
+                <li><strong>QualityCalculator</strong> - Determines optimal stripe count and blur levels</li>
+                <li><strong>BatchProcessor</strong> - Handles multiple layer selections efficiently</li>
+                <li><strong>ProgressReporter</strong> - Provides feedback during long operations</li>
+            </ul>
+        </div>
+
+        <h2>Data Models</h2>
+
+        <h3>EffectSettings Interface</h3>
+        <div class="code-block">
+<span class="code-keyword">interface</span> <span class="code-function">EffectSettings</span> {
+  <span class="code-comment">// Pattern Configuration</span>
+  stripeCount: <span class="code-keyword">number</span>;                    <span class="code-comment">// 20-200</span>
+  stripeWidthMode: WidthMode;
+  widthVariation: <span class="code-keyword">number</span>;                 <span class="code-comment">// 0-100%</span>
+  direction: <span class="code-keyword">number</span>;                      <span class="code-comment">// 0-360 degrees</span>
+  fractalDepth: <span class="code-keyword">number</span>;                   <span class="code-comment">// 1-5</span>
+  subdivisionRatio: <span class="code-keyword">number</span>;               <span class="code-comment">// 0.3-0.7</span>
+  
+  <span class="code-comment">// Color System</span>
+  colorMode: ColorMode;
+  palette: RGB[];
+  colorSpace: ColorSpace;
+  distribution: DistributionType;
+  hueShift: <span class="code-keyword">number</span>;                       <span class="code-comment">// -180 to 180</span>
+  saturationVariance: <span class="code-keyword">number</span>;             <span class="code-comment">// 0-100</span>
+  brightnessVariance: <span class="code-keyword">number</span>;             <span class="code-comment">// 0-100</span>
+  gradientOffset: <span class="code-keyword">number</span>;                 <span class="code-comment">// 0-100</span>
+  
+  <span class="code-comment">// Glass Effects</span>
+  blurLayers: BlurLayer[];
+  waveAmplitude: <span class="code-keyword">number</span>;                  <span class="code-comment">// 0-50</span>
+  waveFrequency: <span class="code-keyword">number</span>;                  <span class="code-comment">// 0.1-5</span>
+  turbulence: <span class="code-keyword">number</span>;                     <span class="code-comment">// 0-100</span>
+  dispersionAmount: <span class="code-keyword">number</span>;               <span class="code-comment">// 0-10</span>
+  dispersionAngle: <span class="code-keyword">number</span>;                <span class="code-comment">// 0-360</span>
+  
+  <span class="code-comment">// Overlay Behavior</span>
+  blendMode: BlendMode;
+  opacity: <span class="code-keyword">number</span>;                        <span class="code-comment">// 0-100</span>
+  edgeFeather: <span class="code-keyword">number</span>;                    <span class="code-comment">// 0-50</span>
+  
+  <span class="code-comment">// Performance</span>
+  quality: QualityMode;
+  autoFlatten: <span class="code-keyword">boolean</span>;
+  randomSeed: <span class="code-keyword">number</span>;
+}
+        </div>
+
+        <h3>Enum Definitions</h3>
+        <div class="code-block">
+<span class="code-keyword">enum</span> WidthMode {
+  UNIFORM = <span class="code-string">'uniform'</span>,
+  RANDOM = <span class="code-string">'random'</span>,
+  FIBONACCI = <span class="code-string">'fibonacci'</span>,
+  CUSTOM = <span class="code-string">'custom'</span>
+}
+
+<span class="code-keyword">enum</span> ColorMode {
+  CUSTOM = <span class="code-string">'custom'</span>,
+  EXTRACT = <span class="code-string">'extract'</span>,
+  GRADIENT = <span class="code-string">'gradient'</span>,
+  RANDOM = <span class="code-string">'random'</span>
+}
+
+<span class="code-keyword">enum</span> ColorSpace {
+  RGB = <span class="code-string">'rgb'</span>,
+  HSL = <span class="code-string">'hsl'</span>,
+  LAB = <span class="code-string">'lab'</span>
+}
+
+<span class="code-keyword">enum</span> QualityMode {
+  DRAFT = <span class="code-string">'draft'</span>,
+  STANDARD = <span class="code-string">'standard'</span>,
+  HIGH = <span class="code-string">'high'</span>
+}
+        </div>
+
+        <h2>Core Algorithms</h2>
+
+        <h3>1. Gradient Generation Algorithm</h3>
+        <div class="tech-card">
+            <p><strong>Purpose:</strong> Generate smooth color gradients with configurable variation for each stripe.</p>
+            <p><strong>Complexity:</strong> O(n) where n is the number of gradient stops</p>
+        </div>
+
+        <h4>Input Parameters:</h4>
+        <ul>
+            <li><strong>colorPalette:</strong> Array of RGB colors</li>
+            <li><strong>stopCount:</strong> Number of gradient stops (typically 50-100)</li>
+            <li><strong>stripeIndex:</strong> Current stripe position for variation</li>
+            <li><strong>offset:</strong> Gradient position offset (0-1)</li>
+            <li><strong>variance:</strong> Color variation amount</li>
+        </ul>
+
+        <h4>Implementation:</h4>
+        <div class="code-block">
+<span class="code-keyword">function</span> <span class="code-function">generateGradient</span>(params: GradientParams): GradientStop[] {
+  <span class="code-keyword">const</span> stops: GradientStop[] = [];
+  
+  <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i < params.stopCount; i++) {
+    <span class="code-keyword">const</span> position = i / (params.stopCount - <span class="code-number">1</span>);
+    <span class="code-keyword">const</span> adjustedPos = (position + params.offset) % <span class="code-number">1</span>;
+    
+    <span class="code-comment">// Interpolate base color from palette</span>
+    <span class="code-keyword">const</span> baseColor = interpolateColor(
+      params.palette, 
+      adjustedPos, 
+      params.colorSpace
+    );
+    
+    <span class="code-comment">// Apply variance using seeded randomness</span>
+    <span class="code-keyword">const</span> variedColor = applyColorVariance(
+      baseColor,
+      params.variance,
+      params.stripeIndex,
+      params.randomSeed
+    );
+    
+    stops.push({ position, color: variedColor });
+  }
+  
+  <span class="code-keyword">return</span> stops;
+}
+        </div>
+
+        <h3>2. Color Interpolation Algorithm</h3>
+        <div class="tech-card">
+            <p><strong>Purpose:</strong> Smoothly blend between colors in a palette using appropriate color space.</p>
+            <p><strong>Complexity:</strong> O(1) for single interpolation</p>
+        </div>
+
+        <h4>LAB Space Implementation (Recommended):</h4>
+        <div class="code-block">
+<span class="code-keyword">function</span> <span class="code-function">interpolateColor</span>(
+  palette: RGB[], 
+  position: <span class="code-keyword">number</span>,
+  colorSpace: ColorSpace = ColorSpace.LAB
+): RGB {
+  <span class="code-comment">// Find segment in palette</span>
+  <span class="code-keyword">const</span> segmentIndex = Math.floor(position * (palette.length - <span class="code-number">1</span>));
+  <span class="code-keyword">const</span> color1 = palette[segmentIndex];
+  <span class="code-keyword">const</span> color2 = palette[segmentIndex + <span class="code-number">1</span>] || color1;
+  
+  <span class="code-comment">// Convert to LAB space</span>
+  <span class="code-keyword">const</span> lab1 = rgbToLab(color1);
+  <span class="code-keyword">const</span> lab2 = rgbToLab(color2);
+  
+  <span class="code-comment">// Calculate interpolation factor</span>
+  <span class="code-keyword">const</span> t = (position * (palette.length - <span class="code-number">1</span>)) - segmentIndex;
+  
+  <span class="code-comment">// Interpolate in LAB space</span>
+  <span class="code-keyword">const</span> interpolatedLab = {
+    L: lerp(lab1.L, lab2.L, t),
+    A: lerp(lab1.A, lab2.A, t),
+    B: lerp(lab1.B, lab2.B, t)
+  };
+  
+  <span class="code-comment">// Convert back to RGB</span>
+  <span class="code-keyword">return</span> labToRgb(interpolatedLab);
+}
+
+<span class="code-keyword">function</span> <span class="code-function">lerp</span>(a: <span class="code-keyword">number</span>, b: <span class="code-keyword">number</span>, t: <span class="code-keyword">number</span>): <span class="code-keyword">number</span> {
+  <span class="code-keyword">return</span> a + (b - a) * t;
+}
+        </div>
+
+        <h3>3. Stripe Positioning Algorithm</h3>
+        <div class="tech-card">
+            <p><strong>Purpose:</strong> Calculate position and width for each stripe with optional variation patterns.</p>
+            <p><strong>Complexity:</strong> O(n) where n is stripe count</p>
+        </div>
+
+        <h4>Uniform Distribution:</h4>
+        <div class="code-block">
+<span class="code-keyword">function</span> <span class="code-function">calculateUniformStripes</span>(
+  totalWidth: <span class="code-keyword">number</span>, 
+  count: <span class="code-keyword">number</span>
+): Stripe[] {
+  <span class="code-keyword">const</span> stripeWidth = totalWidth / count;
+  <span class="code-keyword">const</span> stripes: Stripe[] = [];
+  
+  <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i < count; i++) {
+    stripes.push({
+      x: i * stripeWidth,
+      width: stripeWidth
+    });
+  }
+  
+  <span class="code-keyword">return</span> stripes;
+}
+        </div>
+
+        <h4>Random Variation Distribution:</h4>
+        <div class="code-block">
+<span class="code-keyword">function</span> <span class="code-function">calculateVariedStripes</span>(
+  totalWidth: <span class="code-keyword">number</span>,
+  count: <span class="code-keyword">number</span>,
+  variance: <span class="code-keyword">number</span>,
+  seed: <span class="code-keyword">number</span>
+): Stripe[] {
+  <span class="code-keyword">const</span> baseWidth = totalWidth / count;
+  <span class="code-keyword">const</span> stripes: Stripe[] = [];
+  <span class="code-keyword">let</span> currentX = <span class="code-number">0</span>;
+  
+  <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i < count; i++) {
+    <span class="code-comment">// Seeded random for reproducibility</span>
+    <span class="code-keyword">const</span> randomFactor = seededRandom(seed + i) * variance;
+    <span class="code-keyword">const</span> width = baseWidth * (<span class="code-number">1</span> + randomFactor);
+    
+    stripes.push({ x: currentX, width });
+    currentX += width;
+  }
+  
+  <span class="code-comment">// Scale all stripes to fit exact total width</span>
+  <span class="code-keyword">const</span> scale = totalWidth / currentX;
+  stripes.forEach(<span class="code-keyword">s</span> => { 
+    s.x *= scale; 
+    s.width *= scale;
+  });
+  
+  <span class="code-keyword">return</span> stripes;
+}
+        </div>
+
+        <h3>4. Blur Layer Composition</h3>
+        <div class="tech-card">
+            <p><strong>Purpose:</strong> Create multi-layer blur effect by stacking copies with different blur radii and opacities.</p>
+            <p><strong>Complexity:</strong> O(n) where n is number of blur layers</p>
+        </div>
+
+        <div class="code-block">
+<span class="code-keyword">async function</span> <span class="code-function">applyBlurLayers</span>(
+  baseFrame: FrameNode,
+  blurConfig: BlurLayer[]
+): <span class="code-keyword">Promise</span>&lt;GroupNode&gt; {
+  <span class="code-keyword">const</span> layerGroup = figma.group([], figma.currentPage);
+  
+  <span class="code-comment">// Add base layer (no blur)</span>
+  <span class="code-keyword">const</span> baseClone = baseFrame.clone();
+  layerGroup.appendChild(baseClone);
+  
+  <span class="code-comment">// Add blur layers</span>
+  <span class="code-keyword">for</span> (<span class="code-keyword">const</span> layer <span class="code-keyword">of</span> blurConfig) {
+    <span class="code-keyword">if</span> (layer.opacity > <span class="code-number">0</span>) {
+      <span class="code-keyword">const</span> copy = baseFrame.clone();
+      copy.effects = [{
+        type: <span class="code-string">'LAYER_BLUR'</span>,
+        radius: layer.radius,
+        visible: <span class="code-keyword">true</span>
+      }];
+      copy.opacity = layer.opacity / <span class="code-number">100</span>;
+      layerGroup.appendChild(copy);
+    }
+  }
+  
+  <span class="code-keyword">return</span> layerGroup;
+}
+        </div>
+
+        <h3>5. Performance Optimization Algorithm</h3>
+        <div class="tech-card">
+            <p><strong>Purpose:</strong> Automatically determine optimal settings based on layer dimensions and quality preference.</p>
+        </div>
+
+        <div class="code-block">
+<span class="code-keyword">function</span> <span class="code-function">calculateOptimalSettings</span>(
+  dimensions: Dimensions,
+  quality: QualityMode
+): OptimizedSettings {
+  <span class="code-keyword">const</span> area = dimensions.width * dimensions.height;
+  <span class="code-keyword">const</span> aspectRatio = dimensions.width / dimensions.height;
+  
+  <span class="code-comment">// Base stripe count by quality</span>
+  <span class="code-keyword">let</span> baseCount = quality === QualityMode.DRAFT ? <span class="code-number">40</span> :
+                  quality === QualityMode.STANDARD ? <span class="code-number">80</span> : <span class="code-number">150</span>;
+  
+  <span class="code-comment">// Adjust for very large dimensions</span>
+  <span class="code-keyword">if</span> (area > <span class="code-number">4000000</span>) { <span class="code-comment">// > 2000x2000</span>
+    baseCount = Math.floor(baseCount * <span class="code-number">0.7</span>);
+  }
+  
+  <span class="code-comment">// Scale blur based on dimensions</span>
+  <span class="code-keyword">const</span> blurScale = Math.min(dimensions.width, dimensions.height) / <span class="code-number">1000</span>;
+  
+  <span class="code-keyword">return</span> {
+    stripeCount: baseCount,
+    blurRadius: <span class="code-number">20</span> * blurScale,
+    gradientStops: quality === QualityMode.DRAFT ? <span class="code-number">30</span> :
+                   quality === QualityMode.STANDARD ? <span class="code-number">60</span> : <span class="code-number">100</span>
+  };
+}
+        </div>
+
+        <h2>Figma API Integration</h2>
+
+        <h3>Key API Operations</h3>
+
+        <h4>1. Creating Stripe Elements</h4>
+        <div class="code-block">
+<span class="code-keyword">const</span> stripe = figma.createRectangle();
+stripe.resize(width, height);
+stripe.x = xPosition;
+stripe.y = yPosition;
+stripe.fills = [gradientFill];
+        </div>
+
+        <h4>2. Setting Gradient Fills</h4>
+        <div class="code-block">
+<span class="code-keyword">const</span> gradientFill: GradientPaint = {
+  type: <span class="code-string">'GRADIENT_LINEAR'</span>,
+  gradientTransform: [[<span class="code-number">1</span>, <span class="code-number">0</span>, <span class="code-number">0</span>], [<span class="code-number">0</span>, <span class="code-number">1</span>, <span class="code-number">0</span>]],
+  gradientStops: [
+    { position: <span class="code-number">0</span>, color: { r: <span class="code-number">0</span>, g: <span class="code-number">0</span>, b: <span class="code-number">1</span>, a: <span class="code-number">1</span> } },
+    { position: <span class="code-number">0.5</span>, color: { r: <span class="code-number">1</span>, g: <span class="code-number">0.5</span>, b: <span class="code-number">0</span>, a: <span class="code-number">1</span> } },
+    { position: <span class="code-number">1</span>, color: { r: <span class="code-number">0</span>, g: <span class="code-number">0</span>, b: <span class="code-number">1</span>, a: <span class="code-number">1</span> } }
+  ]
+};
+stripe.fills = [gradientFill];
+        </div>
+
+        <h4>3. Applying Blur Effects</h4>
+        <div class="code-block">
+node.effects = [{
+  type: <span class="code-string">'LAYER_BLUR'</span>,
+  radius: <span class="code-number">20</span>,
+  visible: <span class="code-keyword">true</span>
+}];
+        </div>
+
+        <h4>4. Setting Blend Modes</h4>
+        <div class="code-block">
+overlayFrame.blendMode = <span class="code-string">'OVERLAY'</span>;
+overlayFrame.opacity = <span class="code-number">0.7</span>;
+        </div>
+
+        <h4>5. Reading Selection and Dimensions</h4>
+        <div class="code-block">
+<span class="code-keyword">const</span> selection = figma.currentPage.selection;
+<span class="code-keyword">const</span> targetNode = selection[<span class="code-number">0</span>];
+<span class="code-keyword">const</span> bounds = {
+  width: targetNode.width,
+  height: targetNode.height,
+  x: targetNode.x,
+  y: targetNode.y
+};
+        </div>
+
+        <h2>Performance Considerations</h2>
+
+        <h3>Optimization Strategies</h3>
+
+        <h4>1. Object Creation Batching</h4>
+        <p>Create all stripe objects before adding them to the scene graph to minimize reflows.</p>
+        <div class="code-block">
+<span class="code-comment">// Good: Batch creation</span>
+<span class="code-keyword">const</span> stripes: RectangleNode[] = [];
+<span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i < count; i++) {
+  stripes.push(createStripe(i));
+}
+container.appendChild(...stripes);
+        </div>
+
+        <div class="warning-box">
+            <strong>Anti-pattern:</strong> Avoid adding stripes to the container inside the loop. This causes multiple scene graph updates and significantly degrades performance.
+        </div>
+
+        <h4>2. Progressive Rendering</h4>
+        <p>For high stripe counts, render in chunks with yield points to maintain UI responsiveness.</p>
+        <div class="code-block">
+<span class="code-keyword">async function</span> <span class="code-function">generateStripes</span>(config: EffectSettings) {
+  <span class="code-keyword">const</span> CHUNK_SIZE = <span class="code-number">20</span>;
+  
+  <span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i < config.stripeCount; i += CHUNK_SIZE) {
+    <span class="code-keyword">const</span> chunk = createStripeChunk(i, CHUNK_SIZE, config);
+    container.appendChild(...chunk);
+    <span class="code-keyword">await</span> <span class="code-keyword">new</span> Promise(<span class="code-keyword">resolve</span> => setTimeout(resolve, <span class="code-number">0</span>));
+  }
+}
+        </div>
+
+        <h4>3. Gradient Stop Optimization</h4>
+        <p>Limit gradient stops based on quality mode. More stops create smoother gradients but impact performance.</p>
+        <ul>
+            <li><strong>Draft:</strong> 20-30 stops</li>
+            <li><strong>Standard:</strong> 50-70 stops</li>
+            <li><strong>High:</strong> 100+ stops</li>
+        </ul>
+
+        <h3>Performance Benchmarks</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Layer Size</th>
+                    <th>Quality Mode</th>
+                    <th>Stripe Count</th>
+                    <th>Target Time</th>
+                    <th>Memory Usage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>500x500</td>
+                    <td>Standard</td>
+                    <td>80</td>
+                    <td>< 2 sec</td>
+                    <td>~20 MB</td>
+                </tr>
+                <tr>
+                    <td>1920x1080</td>
+                    <td>Standard</td>
+                    <td>80</td>
+                    <td>< 5 sec</td>
+                    <td>~40 MB</td>
+                </tr>
+                <tr>
+                    <td>1920x1080</td>
+                    <td>High</td>
+                    <td>150</td>
+                    <td>< 12 sec</td>
+                    <td>~70 MB</td>
+                </tr>
+                <tr>
+                    <td>4000x3000</td>
+                    <td>Standard</td>
+                    <td>70</td>
+                    <td>< 15 sec</td>
+                    <td>~90 MB</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Storage and State Management</h2>
+
+        <h3>Local Storage Schema</h3>
+        <p>Plugin settings and presets are persisted using Figma's clientStorage API.</p>
+
+        <h4>Storage Keys:</h4>
+        <ul>
+            <li><strong>fractal-glass:settings</strong> - Last used effect settings</li>
+            <li><strong>fractal-glass:custom-presets</strong> - Array of user-created presets</li>
+            <li><strong>fractal-glass:recent-colors</strong> - Recently used color palettes</li>
+            <li><strong>fractal-glass:ui-state</strong> - Panel collapse states and preferences</li>
+        </ul>
+
+        <h4>Storage Operations:</h4>
+        <div class="code-block">
+<span class="code-comment">// Save settings</span>
+<span class="code-keyword">await</span> figma.clientStorage.setAsync(
+  <span class="code-string">'fractal-glass:settings'</span>, 
+  settings
+);
+
+<span class="code-comment">// Load settings</span>
+<span class="code-keyword">const</span> settings = <span class="code-keyword">await</span> figma.clientStorage.getAsync(
+  <span class="code-string">'fractal-glass:settings'</span>
+);
+
+<span class="code-comment">// Save custom preset</span>
+<span class="code-keyword">const</span> presets = <span class="code-keyword">await</span> figma.clientStorage.getAsync(
+  <span class="code-string">'fractal-glass:custom-presets'</span>
+) || [];
+presets.push(newPreset);
+<span class="code-keyword">await</span> figma.clientStorage.setAsync(
+  <span class="code-string">'fractal-glass:custom-presets'</span>, 
+  presets
+);
+        </div>
+
+        <h2>Error Handling</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Error Type</th>
+                    <th>Detection</th>
+                    <th>User Message</th>
+                    <th>Recovery Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>No Selection</td>
+                    <td>selection.length === 0</td>
+                    <td>"Please select a layer to apply the effect"</td>
+                    <td>Prompt user to select layer</td>
+                </tr>
+                <tr>
+                    <td>Invalid Layer Type</td>
+                    <td>Type check on selection</td>
+                    <td>"Effect can only be applied to frames or groups"</td>
+                    <td>Suggest creating frame</td>
+                </tr>
+                <tr>
+                    <td>Layer Too Large</td>
+                    <td>width * height > threshold</td>
+                    <td>"Layer is very large. Consider using Draft mode for better performance"</td>
+                    <td>Auto-switch to draft mode</td>
+                </tr>
+                <tr>
+                    <td>Generation Timeout</td>
+                    <td>Operation exceeds 30 sec</td>
+                    <td>"Effect generation taking longer than expected. Continue waiting?"</td>
+                    <td>Offer cancel option</td>
+                </tr>
+                <tr>
+                    <td>Storage Quota</td>
+                    <td>clientStorage exception</td>
+                    <td>"Unable to save preset. Storage quota exceeded"</td>
+                    <td>Suggest deleting old presets</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Testing Strategy</h2>
+
+        <h3>Unit Tests</h3>
+        <p><strong>Target Coverage:</strong> 80% of core algorithms</p>
+
+        <h4>Key Test Suites:</h4>
+        <ul>
+            <li><strong>Color Interpolation:</strong> Verify correct interpolation in RGB, HSL, and LAB spaces</li>
+            <li><strong>Gradient Generation:</strong> Test stop count, position accuracy, color variance</li>
+            <li><strong>Stripe Positioning:</strong> Validate uniform and varied distribution modes</li>
+            <li><strong>Performance Calculator:</strong> Test quality mode calculations for various dimensions</li>
+        </ul>
+
+        <h3>Integration Tests</h3>
+        <p>Test complete workflows using Figma Plugin API mocks.</p>
+        <ul>
+            <li>Preset application end-to-end</li>
+            <li>Custom settings save and restore</li>
+            <li>Multi-layer selection handling</li>
+            <li>Effect generation with various blend modes</li>
+        </ul>
+
+        <h3>Performance Tests</h3>
+        <p>Benchmark effect generation across different configurations.</p>
+
+        <h4>Test Scenarios:</h4>
+        <ul>
+            <li>Small layer (500x500): < 2 seconds</li>
+            <li>Medium layer (1920x1080): < 5 seconds</li>
+            <li>Large layer (4000x3000): < 15 seconds</li>
+            <li>Multiple selections (10 layers): < 30 seconds</li>
+        </ul>
+
+        <h2>Security Considerations</h2>
+
+        <h3>Plugin Sandbox</h3>
+        <p>Figma plugins run in a sandboxed environment with limited access. The plugin operates entirely client-side with no external network requests in the core functionality.</p>
+
+        <h3>Data Privacy</h3>
+        <ul>
+            <li>No user data or design content transmitted to external servers</li>
+            <li>All settings stored locally using Figma clientStorage API</li>
+            <li>Preset export creates local JSON files, no cloud sync</li>
+        </ul>
+
+        <h3>License Validation (Pro/Team Tiers)</h3>
+        <p>License keys validated through Gumroad or Paddle API. Keys stored encrypted in clientStorage.</p>
+        <div class="code-block">
+<span class="code-keyword">async function</span> <span class="code-function">validateLicense</span>(key: <span class="code-keyword">string</span>): <span class="code-keyword">Promise</span>&lt;<span class="code-keyword">boolean</span>&gt; {
+  <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> fetch(
+    <span class="code-string">'https://api.gumroad.com/v2/licenses/verify'</span>, 
+    {
+      method: <span class="code-string">'POST'</span>,
+      body: JSON.stringify({ 
+        product_id: PRODUCT_ID, 
+        license_key: key 
+      })
+    }
+  );
+  
+  <span class="code-keyword">const</span> data = <span class="code-keyword">await</span> response.json();
+  <span class="code-keyword">return</span> data.success;
+}
+        </div>
+
+        <h2>Deployment</h2>
+
+        <h3>Build Process</h3>
+        <div class="code-block">
+<span class="code-comment"># Install dependencies</span>
+npm install
+
+<span class="code-comment"># Build TypeScript</span>
+npm run build
+
+<span class="code-comment"># Bundle UI assets</span>
+npm run bundle
+
+<span class="code-comment"># Test build</span>
+npm run test
+        </div>
+
+        <h3>Figma Community Submission</h3>
+        <ul>
+            <li>Create plugin listing with screenshots and description</li>
+            <li>Submit manifest.json with proper permissions</li>
+            <li>Upload code bundle via Figma plugin management</li>
+            <li>Await Figma review (typically 1-3 business days)</li>
+        </ul>
+
+        <h3>Version Management</h3>
+        <p>Follow semantic versioning: MAJOR.MINOR.PATCH</p>
+        <ul>
+            <li><strong>MAJOR:</strong> Breaking API changes</li>
+            <li><strong>MINOR:</strong> New features, backwards compatible</li>
+            <li><strong>PATCH:</strong> Bug fixes</li>
+        </ul>
+
+        <h2>Dependencies</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Package</th>
+                    <th>Version</th>
+                    <th>Purpose</th>
+                    <th>Bundle Size</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>chroma-js</td>
+                    <td>^2.4.0</td>
+                    <td>Color manipulation and conversion</td>
+                    <td>~14 KB</td>
+                </tr>
+                <tr>
+                    <td>seedrandom</td>
+                    <td>^3.0.5</td>
+                    <td>Reproducible randomness</td>
+                    <td>~3 KB</td>
+                </tr>
+                <tr>
+                    <td>@figma/plugin-typings</td>
+                    <td>Latest</td>
+                    <td>TypeScript definitions for Figma API</td>
+                    <td>Dev only</td>
+                </tr>
+                <tr>
+                    <td>esbuild</td>
+                    <td>Latest</td>
+                    <td>Build and bundling</td>
+                    <td>Dev only</td>
+                </tr>
+                <tr>
+                    <td>jest</td>
+                    <td>^29.0.0</td>
+                    <td>Testing framework</td>
+                    <td>Dev only</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-box">
+            <strong>Total Production Bundle Size:</strong> Estimated ~25 KB (gzipped) for plugin code + dependencies
+        </div>
+
+        <h2>Appendix</h2>
+
+        <h3>File Structure</h3>
+        <div class="code-block">
+fractal-glass/
+├── manifest.json
+├── package.json
+├── tsconfig.json
+├── src/
+│   ├── plugin/
+│   │   ├── code.ts                 <span class="code-comment"># Main plugin entry</span>
+│   │   ├── modules/
+│   │   │   ├── EffectGenerator.ts
+│   │   │   ├── ColorSystem.ts
+│   │   │   ├── PresetManager.ts
+│   │   │   └── PerformanceOptimizer.ts
+│   │   ├── algorithms/
+│   │   │   ├── gradient.ts
+│   │   │   ├── interpolation.ts
+│   │   │   └── positioning.ts
+│   │   └── utils/
+│   │       ├── color.ts
+│   │       ├── math.ts
+│   │       └── random.ts
+│   ├── ui/
+│   │   ├── index.html
+│   │   ├── styles.css
+│   │   └── ui.ts
+│   └── types/
+│       ├── settings.ts
+│       ├── presets.ts
+│       └── common.ts
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── performance/
+└── dist/                          <span class="code-comment"># Build output</span>
+        </div>
+
+        <h3>Document Control</h3>
+        <h4>Version History</h4>
+        <ul>
+            <li>v1.0 - January 2026 - Initial TRD creation</li>
+        </ul>
+
+        <h4>Technical Review Required</h4>
+        <ul>
+            <li>Senior Frontend Engineer</li>
+            <li>Performance Architect</li>
+            <li>Security Reviewer</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractal Glass - User Experience Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #ed64a6;
+        }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #ed64a6;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 24px;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+        
+        .version {
+            font-size: 14px;
+            color: #718096;
+            font-style: italic;
+        }
+        
+        .doc-info {
+            background: #fff5f7;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        
+        .doc-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .doc-info-item {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .doc-info-label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        h3 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #d53f8c;
+            margin: 30px 0 15px;
+        }
+        
+        h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #718096;
+            margin: 20px 0 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+        
+        .wireframe {
+            background: #f7fafc;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+        
+        .wireframe-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .ui-element {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .ui-element-label {
+            font-size: 12px;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        
+        .flow-diagram {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+        
+        .flow-step {
+            background: linear-gradient(135deg, #ed64a6 0%, #9f7aea 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .flow-step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: 700;
+        }
+        
+        .flow-arrow {
+            text-align: center;
+            font-size: 24px;
+            color: #cbd5e0;
+            margin: 5px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th {
+            background: #ed64a6;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        tr:hover {
+            background: #f7fafc;
+        }
+        
+        .design-principle {
+            background: #fff5f7;
+            border-left: 4px solid #ed64a6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .principle-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #d53f8c;
+            margin-bottom: 10px;
+        }
+        
+        .interaction-pattern {
+            background: white;
+            border: 2px solid #fbb6ce;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .pattern-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #97266d;
+            margin-bottom: 10px;
+        }
+        
+        .color-swatch {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            margin: 5px 10px 5px 0;
+            vertical-align: middle;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .color-label {
+            display: inline-block;
+            vertical-align: middle;
+            font-weight: 600;
+        }
+        
+        .spacing-example {
+            background: #f7fafc;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 3px solid #ed64a6;
+        }
+        
+        .info-box {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .accessibility-badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 5px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Fractal Glass</h1>
+            <div class="subtitle">User Experience Document</div>
+            <div class="version">Version 1.0 | January 2026</div>
+        </div>
+        
+        <div class="doc-info">
+            <div class="doc-info-grid">
+                <div class="doc-info-item">
+                    <span class="doc-info-label">UX Lead:</span>
+                    <span>Leslie (Founder, Ovalay Studios)</span>
+                </div>
+                <div class="doc-info-item">
+                    <span class="doc-info-label">Last Updated:</span>
+                    <span>January 14, 2026</span>
+                </div>
+                <div class="doc-info-item">
+                    <span class="doc-info-label">Status:</span>
+                    <span>Draft - Pending Review</span>
+                </div>
+                <div class="doc-info-item">
+                    <span class="doc-info-label">Design System:</span>
+                    <span>Figma Plugin Standards</span>
+                </div>
+            </div>
+        </div>
+
+        <h2>UX Vision</h2>
+        <p>Fractal Glass embraces a <strong>progressive disclosure</strong> design philosophy, presenting simple, immediate actions to new users while revealing powerful customization options as users grow more confident. The interface balances visual appeal with functional clarity, using the glass effects themselves as inspiration for the UI design language.</p>
+
+        <div class="design-principle">
+            <div class="principle-title">🎯 Core Design Principle</div>
+            <p><strong>"One click for magic, infinite clicks for mastery"</strong></p>
+            <p>New users should achieve professional results in seconds. Power users should never feel constrained by the interface. The UI adapts to user expertise through progressive disclosure and intelligent defaults.</p>
+        </div>
+
+        <h2>Design Principles</h2>
+
+        <div class="design-principle">
+            <div class="principle-title">1. Immediate Value</div>
+            <p>Users see results within 2 seconds of opening the plugin. The preset gallery is the hero element, showcasing visual examples that speak louder than descriptions.</p>
+        </div>
+
+        <div class="design-principle">
+            <div class="principle-title">2. Visual Feedback First</div>
+            <p>Every parameter adjustment shows its effect immediately in the preview. Users learn by seeing, not by reading documentation.</p>
+        </div>
+
+        <div class="design-principle">
+            <div class="principle-title">3. Respectful Complexity</div>
+            <p>Advanced controls are hidden by default but never removed. Power users find depth; casual users find simplicity.</p>
+        </div>
+
+        <div class="design-principle">
+            <div class="principle-title">4. Forgiving Interactions</div>
+            <p>Every action is reversible. Experiments are encouraged through non-destructive editing and unlimited undo.</p>
+        </div>
+
+        <div class="design-principle">
+            <div class="principle-title">5. Aesthetic Inspiration</div>
+            <p>The plugin interface itself uses subtle glass-like effects, creating cohesion between tool and output.</p>
+        </div>
+
+        <h2>User Interface Structure</h2>
+
+        <h3>Layout Hierarchy</h3>
+
+        <div class="wireframe">
+            <div class="wireframe-title">Plugin Panel Structure (240-600px width)</div>
+            
+            <div class="ui-element" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="ui-element-label" style="color: rgba(255,255,255,0.8);">HEADER</div>
+                <strong>Fractal Glass</strong>
+                <div style="margin-top: 5px; font-size: 12px; opacity: 0.9;">Quick Apply | Advanced | Presets</div>
+            </div>
+            
+            <div class="ui-element">
+                <div class="ui-element-label">MODE SELECTOR</div>
+                <div style="display: flex; gap: 10px; margin-top: 8px;">
+                    <div style="flex: 1; background: #667eea; color: white; padding: 8px; border-radius: 4px; text-align: center;">Quick Apply</div>
+                    <div style="flex: 1; background: #f7fafc; padding: 8px; border-radius: 4px; text-align: center;">Advanced</div>
+                </div>
+            </div>
+            
+            <div class="ui-element">
+                <div class="ui-element-label">QUICK APPLY MODE - PRESET GALLERY</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                    <div style="background: linear-gradient(90deg, #667eea, #f093fb); height: 80px; border-radius: 8px;"></div>
+                    <div style="background: linear-gradient(90deg, #4facfe, #00f2fe); height: 80px; border-radius: 8px;"></div>
+                    <div style="background: linear-gradient(90deg, #43e97b, #38f9d7); height: 80px; border-radius: 8px;"></div>
+                    <div style="background: linear-gradient(90deg, #fa709a, #fee140); height: 80px; border-radius: 8px;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 10px; font-size: 12px; color: #a0aec0;">+ Browse More Presets</div>
+            </div>
+            
+            <div class="ui-element">
+                <div class="ui-element-label">INTENSITY SLIDER</div>
+                <div style="margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
+                        <span>Subtle</span>
+                        <span>Intense</span>
+                    </div>
+                    <div style="background: #e2e8f0; height: 4px; border-radius: 2px; position: relative;">
+                        <div style="position: absolute; left: 60%; width: 12px; height: 12px; background: #667eea; border-radius: 50%; top: -4px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ui-element" style="background: #667eea; color: white;">
+                <div style="text-align: center; font-weight: 600; padding: 5px;">Apply Effect</div>
+            </div>
+        </div>
+
+        <h3>Advanced Mode Layout</h3>
+
+        <div class="wireframe">
+            <div class="wireframe-title">Advanced Customization Panel</div>
+            
+            <div class="ui-element">
+                <div class="ui-element-label">COLLAPSIBLE SECTION</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>▼ Pattern Generation</strong>
+                    <span style="font-size: 12px; color: #a0aec0;">5 parameters</span>
+                </div>
+                <div style="margin-top: 15px; padding-left: 20px;">
+                    <div style="margin-bottom: 10px;">
+                        <div style="font-size: 12px; color: #718096;">Stripe Count</div>
+                        <div style="background: #e2e8f0; height: 4px; border-radius: 2px; margin-top: 5px;"></div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="font-size: 12px; color: #718096;">Width Distribution</div>
+                        <select style="width: 100%; padding: 6px; border: 1px solid #e2e8f0; border-radius: 4px;">
+                            <option>Uniform</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ui-element">
+                <div class="ui-element-label">COLLAPSED SECTION</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>▶ Color System</strong>
+                    <span style="font-size: 12px; color: #a0aec0;">8 parameters</span>
+                </div>
+            </div>
+            
+            <div class="ui-element">
+                <div class="ui-element-label">COLLAPSED SECTION</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>▶ Glass Effects</strong>
+                    <span style="font-size: 12px; color: #a0aec0;">6 parameters</span>
+                </div>
+            </div>
+            
+            <div class="ui-element">
+                <div class="ui-element-label">LIVE PREVIEW</div>
+                <div style="background: #f7fafc; height: 150px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #a0aec0;">
+                    200x200 Preview
+                </div>
+            </div>
+        </div>
+
+        <h2>User Flows</h2>
+
+        <h3>Flow 1: First-Time User - Quick Apply</h3>
+        <div class="flow-diagram">
+            <div class="flow-step">
+                <span class="flow-step-number">1</span>
+                <strong>User opens plugin</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Plugin loads in Quick Apply mode showing preset gallery</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">2</span>
+                <strong>User browses presets visually</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Thumbnails show effect preview, hover reveals name</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">3</span>
+                <strong>User clicks preset</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Preset highlights, "Apply Effect" button becomes active</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">4</span>
+                <strong>User adjusts intensity (optional)</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Single slider controls overall effect strength</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">5</span>
+                <strong>User clicks "Apply Effect"</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Progress indicator appears if operation > 2 seconds</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">6</span>
+                <strong>Effect applied to selection</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Success message + "Undo" option displayed for 3 seconds</p>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>Success Criteria:</strong> User achieves professional result within 30 seconds of opening plugin for the first time, without reading documentation.
+        </div>
+
+        <h3>Flow 2: Power User - Custom Effect Creation</h3>
+        <div class="flow-diagram">
+            <div class="flow-step">
+                <span class="flow-step-number">1</span>
+                <strong>User switches to Advanced mode</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Tab navigation or persistent mode switcher</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">2</span>
+                <strong>User expands parameter sections</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Sections expand with smooth animation showing all controls</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">3</span>
+                <strong>User adjusts parameters</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Live preview updates in real-time (debounced 300ms)</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">4</span>
+                <strong>User saves as custom preset</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Modal dialog for naming preset + optional folder selection</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">5</span>
+                <strong>Preset appears in gallery</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Custom presets section created if first custom preset</p>
+            </div>
+        </div>
+
+        <h3>Flow 3: Team Coordinator - Preset Distribution</h3>
+        <div class="flow-diagram">
+            <div class="flow-step">
+                <span class="flow-step-number">1</span>
+                <strong>User creates/selects preset to share</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Right-click or menu access on preset</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">2</span>
+                <strong>User clicks "Export Preset"</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">JSON file generated with preset configuration</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">3</span>
+                <strong>User shares file with team</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Via Slack, email, shared drive, etc.</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">4</span>
+                <strong>Team member clicks "Import Preset"</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">File picker opens for JSON selection</p>
+            </div>
+            <div class="flow-arrow">↓</div>
+            
+            <div class="flow-step">
+                <span class="flow-step-number">5</span>
+                <strong>Preset added to their library</strong>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Success message confirms import + preset now available</p>
+            </div>
+        </div>
+
+        <h2>Interaction Patterns</h2>
+
+        <div class="interaction-pattern">
+            <div class="pattern-name">Preset Selection</div>
+            <p><strong>Behavior:</strong> Single-click selects preset (highlight border). Selection persists until another preset chosen or "Clear" clicked.</p>
+            <p><strong>Visual Feedback:</strong></p>
+            <ul>
+                <li>Default: 2px solid #e2e8f0 border</li>
+                <li>Hover: 2px solid #cbd5e0 border + subtle scale (1.02)</li>
+                <li>Selected: 4px solid #667eea border + drop shadow</li>
+            </ul>
+            <p><strong>Accessibility:</strong> Focus state identical to selection state, keyboard navigation with arrow keys</p>
+        </div>
+
+        <div class="interaction-pattern">
+            <div class="pattern-name">Slider Controls</div>
+            <p><strong>Behavior:</strong> Click-drag or click on track to jump. Arrow keys for fine adjustment (±1 unit).</p>
+            <p><strong>Visual Feedback:</strong></p>
+            <ul>
+                <li>Track: 4px height, rounded corners, #e2e8f0 background</li>
+                <li>Fill: Progressive color from #667eea to #764ba2</li>
+                <li>Thumb: 16px circle, white with shadow, scales to 18px on hover</li>
+            </ul>
+            <p><strong>Live Updates:</strong> Preview updates debounced at 300ms during drag</p>
+        </div>
+
+        <div class="interaction-pattern">
+            <div class="pattern-name">Collapsible Sections</div>
+            <p><strong>Behavior:</strong> Click header to toggle. Remembers state across sessions.</p>
+            <p><strong>Animation:</strong> 200ms ease-out height transition</p>
+            <p><strong>Indicator:</strong> Chevron rotates 90° (▶ to ▼)</p>
+            <p><strong>Optimization:</strong> Maximum 3 sections open simultaneously to reduce scroll</p>
+        </div>
+
+        <div class="interaction-pattern">
+            <div class="pattern-name">Apply Button</div>
+            <p><strong>States:</strong></p>
+            <ul>
+                <li><strong>Disabled:</strong> Gray (#a0aec0), "Select a layer to apply effect"</li>
+                <li><strong>Ready:</strong> Purple gradient (#667eea → #764ba2), "Apply Effect"</li>
+                <li><strong>Loading:</strong> Spinner animation, "Applying..." (for operations > 2 sec)</li>
+                <li><strong>Success:</strong> Green (#48bb78), checkmark, "Applied!" (3 second auto-revert)</li>
+            </ul>
+            <p><strong>Keyboard:</strong> Enter/Return triggers apply when button is enabled</p>
+        </div>
+
+        <div class="interaction-pattern">
+            <div class="pattern-name">Color Picker</div>
+            <p><strong>Behavior:</strong> Click color swatch opens native Figma color picker</p>
+            <p><strong>Palette Display:</strong> Horizontal row of 2-8 color swatches</p>
+            <p><strong>Add/Remove:</strong> + button to add colors (max 8), × overlay on hover to remove</p>
+            <p><strong>Reorder:</strong> Drag-and-drop to rearrange palette order</p>
+        </div>
+
+        <h2>Visual Design System</h2>
+
+        <h3>Color Palette</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Color</th>
+                    <th>Hex</th>
+                    <th>Usage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="color-swatch" style="background: #667eea;"></span><span class="color-label">Primary</span></td>
+                    <td>#667eea</td>
+                    <td>Main actions, selected states, primary buttons</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background: #764ba2;"></span><span class="color-label">Primary Dark</span></td>
+                    <td>#764ba2</td>
+                    <td>Hover states, gradient endpoints</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background: #ed64a6;"></span><span class="color-label">Accent</span></td>
+                    <td>#ed64a6</td>
+                    <td>Highlights, special features, pro badge</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background: #48bb78;"></span><span class="color-label">Success</span></td>
+                    <td>#48bb78</td>
+                    <td>Success messages, confirmation states</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background: #f56565;"></span><span class="color-label">Error</span></td>
+                    <td>#f56565</td>
+                    <td>Error messages, destructive actions</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background: #ed8936;"></span><span class="color-label">Warning</span></td>
+                    <td>#ed8936</td>
+                    <td>Warning messages, performance alerts</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background: #2d3748;"></span><span class="color-label">Text Primary</span></td>
+                    <td>#2d3748</td>
+                    <td>Headings, primary text</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background: #4a5568;"></span><span class="color-label">Text Secondary</span></td>
+                    <td>#4a5568</td>
+                    <td>Body text, descriptions</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background: #a0aec0;"></span><span class="color-label">Text Tertiary</span></td>
+                    <td>#a0aec0</td>
+                    <td>Labels, hints, disabled text</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background: #f7fafc;"></span><span class="color-label">Background</span></td>
+                    <td>#f7fafc</td>
+                    <td>Panel background, section backgrounds</td>
+                </tr>
+                <tr>
+                    <td><span class="color-swatch" style="background: #e2e8f0;"></span><span class="color-label">Border</span></td>
+                    <td>#e2e8f0</td>
+                    <td>Dividers, input borders, UI separation</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Typography</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Element</th>
+                    <th>Font</th>
+                    <th>Size</th>
+                    <th>Weight</th>
+                    <th>Line Height</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>H1 - Plugin Title</td>
+                    <td>System Font</td>
+                    <td>20px</td>
+                    <td>700 (Bold)</td>
+                    <td>1.2</td>
+                </tr>
+                <tr>
+                    <td>H2 - Section Headers</td>
+                    <td>System Font</td>
+                    <td>16px</td>
+                    <td>600 (Semibold)</td>
+                    <td>1.3</td>
+                </tr>
+                <tr>
+                    <td>H3 - Subsection</td>
+                    <td>System Font</td>
+                    <td>14px</td>
+                    <td>600 (Semibold)</td>
+                    <td>1.4</td>
+                </tr>
+                <tr>
+                    <td>Body - Primary</td>
+                    <td>System Font</td>
+                    <td>13px</td>
+                    <td>400 (Regular)</td>
+                    <td>1.5</td>
+                </tr>
+                <tr>
+                    <td>Body - Secondary</td>
+                    <td>System Font</td>
+                    <td>12px</td>
+                    <td>400 (Regular)</td>
+                    <td>1.5</td>
+                </tr>
+                <tr>
+                    <td>Labels</td>
+                    <td>System Font</td>
+                    <td>11px</td>
+                    <td>500 (Medium)</td>
+                    <td>1.4</td>
+                </tr>
+                <tr>
+                    <td>Button Text</td>
+                    <td>System Font</td>
+                    <td>13px</td>
+                    <td>600 (Semibold)</td>
+                    <td>1.0</td>
+                </tr>
+                <tr>
+                    <td>Captions</td>
+                    <td>System Font</td>
+                    <td>10px</td>
+                    <td>400 (Regular)</td>
+                    <td>1.4</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-box">
+            <strong>System Font Stack:</strong> -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif
+        </div>
+
+        <h3>Spacing System</h3>
+        <p>Consistent spacing using 4px base unit:</p>
+        
+        <div class="spacing-example">
+            <strong>2px (0.5×)</strong> - Tight spacing within composite elements
+        </div>
+        <div class="spacing-example">
+            <strong>4px (1×)</strong> - Minimum element spacing
+        </div>
+        <div class="spacing-example">
+            <strong>8px (2×)</strong> - Default spacing between related elements
+        </div>
+        <div class="spacing-example">
+            <strong>12px (3×)</strong> - Spacing between element groups
+        </div>
+        <div class="spacing-example">
+            <strong>16px (4×)</strong> - Padding within cards and containers
+        </div>
+        <div class="spacing-example">
+            <strong>24px (6×)</strong> - Major section spacing
+        </div>
+        <div class="spacing-example">
+            <strong>32px (8×)</strong> - Large section dividers
+        </div>
+
+        <h3>Border Radius</h3>
+        <ul>
+            <li><strong>2px:</strong> Input fields, small elements</li>
+            <li><strong>4px:</strong> Buttons, cards</li>
+            <li><strong>8px:</strong> Preset thumbnails, major containers</li>
+            <li><strong>12px:</strong> Badges, pills</li>
+            <li><strong>50%:</strong> Circular elements (color swatches, profile pictures)</li>
+        </ul>
+
+        <h3>Shadows</h3>
+        <ul>
+            <li><strong>Subtle:</strong> 0 1px 3px rgba(0,0,0,0.1) - Hover states</li>
+            <li><strong>Standard:</strong> 0 2px 8px rgba(0,0,0,0.1) - Cards, dropdowns</li>
+            <li><strong>Elevated:</strong> 0 4px 16px rgba(0,0,0,0.15) - Modals, selected states</li>
+        </ul>
+
+        <h2>Component Specifications</h2>
+
+        <h3>Preset Thumbnail Card</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Specification</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Dimensions</td>
+                    <td>Responsive: 2-column grid with equal heights<br>Minimum: 100px × 80px<br>Aspect ratio: 5:4</td>
+                </tr>
+                <tr>
+                    <td>Content</td>
+                    <td>Background: Effect preview gradient<br>Overlay: Preset name (appears on hover)<br>Badge: "PRO" indicator if premium</td>
+                </tr>
+                <tr>
+                    <td>Hover State</td>
+                    <td>Scale: 1.02<br>Shadow: Elevated<br>Overlay: Name + description fade in (200ms)</td>
+                </tr>
+                <tr>
+                    <td>Selected State</td>
+                    <td>Border: 4px solid primary color<br>Shadow: Elevated<br>Persistent highlight</td>
+                </tr>
+                <tr>
+                    <td>Interaction</td>
+                    <td>Click to select<br>Double-click to apply immediately</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Parameter Slider</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Specification</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Structure</td>
+                    <td>Label + Value + Track + Thumb</td>
+                </tr>
+                <tr>
+                    <td>Label</td>
+                    <td>11px, medium weight, secondary text color<br>Tooltip icon (?) for parameter explanation</td>
+                </tr>
+                <tr>
+                    <td>Value Display</td>
+                    <td>Current value shown inline with label<br>Editable: click to enter manual value</td>
+                </tr>
+                <tr>
+                    <td>Track</td>
+                    <td>Height: 4px<br>Background: Border color (#e2e8f0)<br>Border radius: 2px</td>
+                </tr>
+                <tr>
+                    <td>Fill</td>
+                    <td>Same height as track<br>Color: Primary gradient<br>Updates as thumb moves</td>
+                </tr>
+                <tr>
+                    <td>Thumb</td>
+                    <td>Size: 16px circle (18px on hover)<br>Color: White<br>Shadow: Standard<br>Transition: 150ms ease</td>
+                </tr>
+                <tr>
+                    <td>Keyboard Control</td>
+                    <td>Arrow keys: ±1 unit<br>Shift+Arrow: ±10 units<br>Home/End: Min/Max values</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Live Preview Window</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Specification</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Dimensions</td>
+                    <td>Square format: 200px × 200px<br>Scales to panel width if narrower</td>
+                </tr>
+                <tr>
+                    <td>Content</td>
+                    <td>Real-time preview of effect on 200x200 sample<br>Checkerboard background for transparency</td>
+                </tr>
+                <tr>
+                    <td>Update Behavior</td>
+                    <td>Debounced 300ms during active adjustment<br>Immediate update on release</td>
+                </tr>
+                <tr>
+                    <td>Loading State</td>
+                    <td>Spinner overlay if preview takes > 500ms<br>"Generating preview..." caption</td>
+                </tr>
+                <tr>
+                    <td>Interaction</td>
+                    <td>Click to toggle full-screen preview (modal)<br>Hover shows zoom lens effect</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Responsive Behavior</h2>
+
+        <h3>Panel Width Adaptations</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Width Range</th>
+                    <th>Adaptations</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>240px - 300px<br>(Narrow)</td>
+                    <td>
+                        • Single-column preset grid<br>
+                        • Compact spacing (8px → 6px)<br>
+                        • Labels above inputs<br>
+                        • Collapsed sections by default
+                    </td>
+                </tr>
+                <tr>
+                    <td>300px - 400px<br>(Standard)</td>
+                    <td>
+                        • Two-column preset grid<br>
+                        • Standard spacing<br>
+                        • Labels inline with inputs<br>
+                        • First section expanded
+                    </td>
+                </tr>
+                <tr>
+                    <td>400px - 600px<br>(Wide)</td>
+                    <td>
+                        • Three-column preset grid<br>
+                        • Generous spacing<br>
+                        • Side-by-side parameter groups<br>
+                        • Multiple sections can be open
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Accessibility</h2>
+
+        <div class="accessibility-badge">WCAG 2.1 AA</div>
+        <div class="accessibility-badge">Keyboard Navigation</div>
+        <div class="accessibility-badge">Screen Reader Optimized</div>
+
+        <h3>Color Contrast</h3>
+        <p>All text meets WCAG 2.1 AA standards:</p>
+        <ul>
+            <li>Normal text: Minimum 4.5:1 contrast ratio</li>
+            <li>Large text (18px+ or 14px+ bold): Minimum 3:1 contrast ratio</li>
+            <li>UI components: Minimum 3:1 contrast ratio</li>
+        </ul>
+
+        <h3>Keyboard Navigation</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Action</th>
+                    <th>Context</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Tab</td>
+                    <td>Move focus forward</td>
+                    <td>All interactive elements</td>
+                </tr>
+                <tr>
+                    <td>Shift + Tab</td>
+                    <td>Move focus backward</td>
+                    <td>All interactive elements</td>
+                </tr>
+                <tr>
+                    <td>Enter / Space</td>
+                    <td>Activate element</td>
+                    <td>Buttons, presets, toggles</td>
+                </tr>
+                <tr>
+                    <td>Arrow Keys</td>
+                    <td>Navigate within component</td>
+                    <td>Preset grid, dropdown menus, sliders</td>
+                </tr>
+                <tr>
+                    <td>Escape</td>
+                    <td>Close / Cancel</td>
+                    <td>Modals, dropdowns, popups</td>
+                </tr>
+                <tr>
+                    <td>Cmd/Ctrl + Z</td>
+                    <td>Undo last action</td>
+                    <td>After applying effect</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Screen Reader Support</h3>
+        <ul>
+            <li><strong>ARIA Labels:</strong> All interactive elements have descriptive labels</li>
+            <li><strong>Role Attributes:</strong> Proper semantic HTML with ARIA roles where needed</li>
+            <li><strong>Live Regions:</strong> Status updates announced (e.g., "Effect applied successfully")</li>
+            <li><strong>Focus Management:</strong> Focus trapped in modals, restored on close</li>
+            <li><strong>Image Alt Text:</strong> Preset thumbnails have descriptive alt text</li>
+        </ul>
+
+        <h3>Focus Indicators</h3>
+        <p>All focusable elements have clear focus indicators:</p>
+        <ul>
+            <li><strong>Primary:</strong> 2px solid outline in primary color with 2px offset</li>
+            <li><strong>High Contrast Mode:</strong> Increased to 3px solid outline</li>
+            <li><strong>Never Removed:</strong> outline: none is forbidden</li>
+        </ul>
+
+        <h2>Microcopy and Messaging</h2>
+
+        <h3>Voice and Tone</h3>
+        <ul>
+            <li><strong>Friendly but Professional:</strong> Approachable without being overly casual</li>
+            <li><strong>Concise:</strong> Every word earns its place</li>
+            <li><strong>Action-Oriented:</strong> Verbs over nouns, active voice</li>
+            <li><strong>Empowering:</strong> "You can..." rather than "It's possible to..."</li>
+        </ul>
+
+        <h3>Button Labels</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Context</th>
+                    <th>Label</th>
+                    <th>Why</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Primary action</td>
+                    <td>"Apply Effect"</td>
+                    <td>Clear outcome, not "Submit" or "OK"</td>
+                </tr>
+                <tr>
+                    <td>Preset save</td>
+                    <td>"Save as Preset"</td>
+                    <td>Specific action, not generic "Save"</td>
+                </tr>
+                <tr>
+                    <td>Preset export</td>
+                    <td>"Export to File"</td>
+                    <td>Clarifies where preset is going</td>
+                </tr>
+                <tr>
+                    <td>Cancel action</td>
+                    <td>"Cancel"</td>
+                    <td>Universal, no ambiguity</td>
+                </tr>
+                <tr>
+                    <td>Delete preset</td>
+                    <td>"Delete Preset"</td>
+                    <td>Explicit, not "Remove" (could mean from view)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Error Messages</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Error</th>
+                    <th>Message</th>
+                    <th>Action Offered</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>No selection</td>
+                    <td>"Please select a layer to apply the effect"</td>
+                    <td>Highlight selection tool</td>
+                </tr>
+                <tr>
+                    <td>Invalid layer type</td>
+                    <td>"This effect works best on frames and groups. Create a frame?"</td>
+                    <td>"Create Frame" button</td>
+                </tr>
+                <tr>
+                    <td>Layer too large</td>
+                    <td>"This layer is very large. Try Draft mode for faster results?"</td>
+                    <td>"Switch to Draft" button</td>
+                </tr>
+                <tr>
+                    <td>Storage full</td>
+                    <td>"Can't save preset—storage full. Delete old presets to make space."</td>
+                    <td>"Manage Presets" link</td>
+                </tr>
+                <tr>
+                    <td>Generation timeout</td>
+                    <td>"This is taking longer than expected. Continue waiting?"</td>
+                    <td>"Keep Waiting" / "Cancel"</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Success Messages</h3>
+        <ul>
+            <li><strong>Effect applied:</strong> "Effect applied! Press Cmd+Z to undo"</li>
+            <li><strong>Preset saved:</strong> "Preset '[Name]' saved to your library"</li>
+            <li><strong>Preset imported:</strong> "Imported 3 presets from [Filename]"</li>
+            <li><strong>Settings updated:</strong> "Preferences saved"</li>
+        </ul>
+
+        <h3>Tooltips</h3>
+        <p>Tooltips appear on 500ms hover delay, dismissed on mouseout or 5 seconds:</p>
+        <ul>
+            <li><strong>Stripe Count:</strong> "Number of vertical stripes. More stripes = smoother effect but slower generation"</li>
+            <li><strong>Blur Radius:</strong> "Glass diffusion amount. Higher values create softer, more diffused effects"</li>
+            <li><strong>Color Space:</strong> "LAB creates most natural color transitions. HSL maintains saturation better than RGB"</li>
+            <li><strong>Blend Mode:</strong> "How the effect mixes with layers below. Try Overlay for subtle integration"</li>
+        </ul>
+
+        <h2>Animation and Transitions</h2>
+
+        <h3>Animation Principles</h3>
+        <ul>
+            <li><strong>Purpose-Driven:</strong> Every animation serves a function (feedback, guide attention, show relationships)</li>
+            <li><strong>Subtle:</strong> Never distracting or unnecessary</li>
+            <li><strong>Fast:</strong> Most animations 150-250ms; nothing over 400ms except large transforms</li>
+            <li><strong>Natural:</strong> Ease-out for entrances, ease-in for exits</li>
+        </ul>
+
+        <h3>Transition Specifications</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Element</th>
+                    <th>Property</th>
+                    <th>Duration</th>
+                    <th>Easing</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Button hover</td>
+                    <td>background, transform</td>
+                    <td>150ms</td>
+                    <td>ease-out</td>
+                </tr>
+                <tr>
+                    <td>Preset card hover</td>
+                    <td>transform, box-shadow</td>
+                    <td>200ms</td>
+                    <td>ease-out</td>
+                </tr>
+                <tr>
+                    <td>Section collapse/expand</td>
+                    <td>height, opacity</td>
+                    <td>250ms</td>
+                    <td>ease-in-out</td>
+                </tr>
+                <tr>
+                    <td>Modal fade in</td>
+                    <td>opacity</td>
+                    <td>200ms</td>
+                    <td>ease-out</td>
+                </tr>
+                <tr>
+                    <td>Tooltip appear</td>
+                    <td>opacity, transform</td>
+                    <td>150ms</td>
+                    <td>ease-out</td>
+                </tr>
+                <tr>
+                    <td>Success message</td>
+                    <td>opacity, transform</td>
+                    <td>250ms</td>
+                    <td>ease-out</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Loading States</h3>
+        <ul>
+            <li><strong>Spinner:</strong> Rotating gradient ring, 300ms per rotation</li>
+            <li><strong>Progress Bar:</strong> For operations over 5 seconds, shows estimated completion</li>
+            <li><strong>Skeleton Screens:</strong> Preset gallery loads with placeholder cards (pulsing animation)</li>
+        </ul>
+
+        <div class="warning-box">
+            <strong>Reduced Motion:</strong> Respect prefers-reduced-motion media query. Disable all non-essential animations, reduce durations to 50ms max.
+        </div>
+
+        <h2>Performance Considerations</h2>
+
+        <h3>UI Performance Targets</h3>
+        <ul>
+            <li><strong>Initial Load:</strong> Plugin UI visible within 500ms</li>
+            <li><strong>Preset Gallery Render:</strong> All 8 presets displayed within 200ms</li>
+            <li><strong>Parameter Adjustment:</strong> UI responds within 16ms (60fps)</li>
+            <li><strong>Preview Update:</strong> Debounced to 300ms during continuous adjustment</li>
+            <li><strong>Mode Switch:</strong> Quick Apply ↔ Advanced transition in under 200ms</li>
+        </ul>
+
+        <h3>Optimization Strategies</h3>
+        <ul>
+            <li><strong>Lazy Loading:</strong> Advanced controls only loaded when Advanced mode activated</li>
+            <li><strong>Virtual Scrolling:</strong> For preset libraries exceeding 50 items</li>
+            <li><strong>Image Optimization:</strong> Preset thumbnails cached after first generation</li>
+            <li><strong>Debouncing:</strong> Slider inputs, color pickers, and text inputs debounced 300ms</li>
+            <li><strong>Progressive Enhancement:</strong> Core Quick Apply functionality works even if Advanced mode fails to load</li>
+        </ul>
+
+        <h2>Platform-Specific Considerations</h2>
+
+        <h3>Desktop vs Browser</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Aspect</th>
+                    <th>Desktop App</th>
+                    <th>Browser</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Performance</td>
+                    <td>Native performance, can handle higher quality modes</td>
+                    <td>May need quality auto-adjustment based on browser capabilities</td>
+                </tr>
+                <tr>
+                    <td>Keyboard Shortcuts</td>
+                    <td>All shortcuts available</td>
+                    <td>Some shortcuts may conflict with browser (fallback options provided)</td>
+                </tr>
+                <tr>
+                    <td>File Export</td>
+                    <td>Direct file system access</td>
+                    <td>Download via browser download manager</td>
+                </tr>
+                <tr>
+                    <td>Memory</td>
+                    <td>More generous limits</td>
+                    <td>More conservative approach to prevent tab crashes</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Operating System Considerations</h3>
+        <ul>
+            <li><strong>macOS:</strong> Cmd key for keyboard shortcuts</li>
+            <li><strong>Windows/Linux:</strong> Ctrl key for keyboard shortcuts</li>
+            <li><strong>Scrollbars:</strong> Use custom styled scrollbars that work across all platforms</li>
+            <li><strong>Fonts:</strong> System font stack ensures native look on each platform</li>
+        </ul>
+
+        <h2>Appendix</h2>
+
+        <h3>Design Checklist</h3>
+        <p>Before shipping any UI component, verify:</p>
+        <ul>
+            <li>☐ All interactive elements have hover, focus, active, and disabled states</li>
+            <li>☐ Color contrast meets WCAG 2.1 AA standards</li>
+            <li>☐ Component is fully keyboard navigable</li>
+            <li>☐ Component works in narrow (240px) and wide (600px) panel sizes</li>
+            <li>☐ Loading and error states are designed and implemented</li>
+            <li>☐ Animations respect prefers-reduced-motion</li>
+            <li>☐ All text uses approved typography scale</li>
+            <li>☐ All spacing uses 4px base unit system</li>
+            <li>☐ Screen reader support verified</li>
+            <li>☐ Component performs well with large datasets</li>
+        </ul>
+
+        <h3>Future Enhancements</h3>
+        <p>Potential UX improvements for future releases:</p>
+        <ul>
+            <li>Dark mode support</li>
+            <li>Preset tags and filtering system</li>
+            <li>Favorite presets quick access</li>
+            <li>Recent presets history</li>
+            <li>Comparison view (before/after split screen)</li>
+            <li>Tutorial overlay for first-time users</li>
+            <li>Preset rating and community feedback</li>
+            <li>Animated preset previews</li>
+        </ul>
+
+        <h3>Document Control</h3>
+        <h4>Version History</h4>
+        <ul>
+            <li>v1.0 - January 2026 - Initial UXD creation</li>
+        </ul>
+
+        <h4>Design Review Required</h4>
+        <ul>
+            <li>UX Designer</li>
+            <li>Accessibility Specialist</li>
+            <li>Visual Designer</li>
+            <li>Product Manager</li>
+        </ul>
+    </div>
+</body>
+</html>
