@@ -1,7 +1,6 @@
 // Glass Overlay Effect Generator
-// Creates procedural glass texture using white/transparent fills only
+// Uses Figma's native GLASS effect
 
-export type WidthMode = 'uniform' | 'random' | 'fibonacci' | 'fractal';
 export type QualityMode = 'draft' | 'standard' | 'high';
 
 export interface GlassSettings {
@@ -10,12 +9,18 @@ export interface GlassSettings {
 	widthVariation: number; // 0-100% (uniform vs chaotic)
 
 	// Glass Properties
-	frosting: number; // 0-100% blur amount
+	frosting: number; // 0-100% frost radius
 	clarity: number; // 0-100% base transparency
-	refractionIntensity: number; // 0-100% refraction line visibility
+	refractionIntensity: number; // 0-100% refraction distortion
+	depth: number; // 1-100 glass depth
+	dispersion: number; // 0-100% chromatic aberration
+
+	// Lighting
+	lightIntensity: number; // 0-100% highlight brightness
+	lightAngle: number; // 0-360 degrees
 
 	// Advanced
-	blurZoneCount: number; // 3-10 frosted regions
+	blurZoneCount: number; // Not used
 	quality: QualityMode;
 	randomSeed: number;
 }
@@ -27,6 +32,10 @@ export function getDefaultSettings(): GlassSettings {
 		frosting: 50,
 		clarity: 70,
 		refractionIntensity: 30,
+		depth: 50,
+		dispersion: 20,
+		lightIntensity: 50,
+		lightAngle: 45,
 		blurZoneCount: 5,
 		quality: 'standard',
 		randomSeed: Date.now(),
@@ -47,10 +56,10 @@ export function generateEffect(
 	// Quality profiles
 	const qualityProfile =
 		settings.quality === 'draft'
-			? { stripeMult: 0.5, lineMult: 0.5, zones: 3 }
+			? { stripeMult: 0.5 }
 			: settings.quality === 'high'
-				? { stripeMult: 1.75, lineMult: 1.75, zones: 8 }
-				: { stripeMult: 1.0, lineMult: 1.0, zones: 5 };
+				? { stripeMult: 1.75 }
+				: { stripeMult: 1.0 };
 
 	const container = figma.createFrame();
 	container.name = 'Glass Overlay';
@@ -58,51 +67,44 @@ export function generateEffect(
 	container.x = bounds.x;
 	container.y = bounds.y;
 	container.fills = [];
+	container.clipsContent = false;
 
-	// Layer 1: Displacement Stripes
+	// Generate glass panes (frames with GLASS effect)
 	const stripeCount = Math.floor(settings.stripeDensity * qualityProfile.stripeMult);
-	const stripes = generateDisplacementStripes(
+	const panes = generateGlassPanes(
 		bounds,
 		stripeCount,
 		settings.widthVariation,
-		settings.randomSeed,
-	);
-	stripes.forEach((s) => container.appendChild(s));
-
-	// Layer 2: Refraction Lines
-	const lineCount = Math.floor(stripeCount * 0.5 * qualityProfile.lineMult);
-	const lines = generateRefractionLines(
-		bounds,
-		lineCount,
-		settings.refractionIntensity,
-		settings.randomSeed,
-	);
-	lines.forEach((l) => container.appendChild(l));
-
-	// Layer 3: Blur Zones
-	const zoneCount = qualityProfile.zones;
-	const zones = generateBlurZones(
-		bounds,
-		zoneCount,
 		settings.frosting,
+		settings.refractionIntensity,
+		settings.depth,
+		settings.dispersion,
+		settings.lightIntensity,
+		settings.lightAngle,
 		settings.randomSeed,
 	);
-	zones.forEach((z) => container.appendChild(z));
+	panes.forEach((pane) => container.appendChild(pane));
 
 	// Composite settings
-	container.blendMode = 'OVERLAY';
 	container.opacity = settings.clarity / 100;
 
 	return container;
 }
 
-// Layer 1: Displacement Stripes
-function generateDisplacementStripes(
+// Generate glass panes using Figma's native GLASS effect
+function generateGlassPanes(
 	bounds: { width: number; height: number },
 	count: number,
 	variation: number,
+	frosting: number,
+	refractionIntensity: number,
+	depth: number,
+	dispersion: number,
+	lightIntensity: number,
+	lightAngle: number,
 	seed: number,
-): RectangleNode[] {
+): FrameNode[] {
+	// Calculate stripe widths
 	const stripes: { x: number; width: number }[] = [];
 	const baseWidth = bounds.width / count;
 	let currentX = 0;
@@ -128,131 +130,32 @@ function generateDisplacementStripes(
 	}
 
 	return stripes.map((stripe, i) => {
-		const rect = figma.createRectangle();
-		rect.x = stripe.x;
-		rect.y = 0;
-		rect.resize(Math.max(0.1, stripe.width), bounds.height);
+		const pane = figma.createFrame();
+		pane.name = `Glass Pane ${i + 1}`;
+		pane.x = stripe.x;
+		pane.y = 0;
+		pane.resize(Math.max(1, stripe.width), bounds.height);
 
-		// White-to-transparent gradient (vertical)
-		const opacityTop = 0.05 + random(seed + i * 2) * 0.15;
-		const opacityMid = 0.15 + random(seed + i * 3) * 0.10;
-		const opacityBot = 0.05 + random(seed + i * 4) * 0.15;
+		// Transparent fill (required for glass effect to work)
+		pane.fills = [];
+		pane.clipsContent = false;
 
-		rect.fills = [
+		// Apply GLASS effect with user-controlled parameters
+		pane.effects = [
 			{
-				type: 'GRADIENT_LINEAR',
-				gradientTransform: [
-					[1, 0, 0],
-					[0, 1, 0],
-				],
-				gradientStops: [
-					{ position: 0, color: { r: 1, g: 1, b: 1, a: opacityTop } },
-					{ position: 0.5, color: { r: 1, g: 1, b: 1, a: opacityMid } },
-					{ position: 1, color: { r: 1, g: 1, b: 1, a: opacityBot } },
-				],
-			},
-		];
-
-		return rect;
-	});
-}
-
-// Layer 2: Refraction Lines
-function generateRefractionLines(
-	bounds: { width: number; height: number },
-	count: number,
-	intensity: number,
-	seed: number,
-): RectangleNode[] {
-	const spacing = calculateFibonacciSpacing(count, bounds.width, seed);
-
-	return spacing.map((x, i) => {
-		const line = figma.createRectangle();
-		const thickness = 1 + random(seed + i * 5) * 2; // 1-3px
-		line.resize(thickness, bounds.height);
-		line.x = x;
-		line.y = 0;
-
-		line.fills = [
-			{
-				type: 'SOLID',
-				color: { r: 1, g: 1, b: 1 },
-				opacity: (intensity / 100) * 0.1, // 0-0.1
-			},
-		];
-
-		line.effects = [
-			{
-				type: 'BACKGROUND_BLUR',
-				radius: 8,
+				type: 'GLASS',
 				visible: true,
+				lightIntensity: lightIntensity / 100, // 0-1
+				lightAngle: lightAngle + random(seed + i * 2) * 10 - 5, // Slight variation ±5°
+				refraction: (refractionIntensity / 100) * 1.0, // 0-1
+				depth: 1 + (depth / 100) * 99, // 1-100
+				dispersion: dispersion / 100, // 0-1
+				radius: (frosting / 100) * 50, // 0-50px
 			},
 		];
 
-		return line;
+		return pane;
 	});
-}
-
-// Layer 3: Blur Zones
-function generateBlurZones(
-	bounds: { width: number; height: number },
-	count: number,
-	frosting: number,
-	seed: number,
-): RectangleNode[] {
-	const zones: RectangleNode[] = [];
-
-	for (let i = 0; i < count; i++) {
-		const zone = figma.createRectangle();
-
-		// Random size and position
-		const width = bounds.width * (0.2 + random(seed + i * 6) * 0.3);
-		const height = bounds.height * (0.3 + random(seed + i * 7) * 0.4);
-		zone.resize(width, height);
-		zone.x = random(seed + i * 8) * (bounds.width - width);
-		zone.y = random(seed + i * 9) * (bounds.height - height);
-
-		// Subtle white fill
-		zone.fills = [
-			{
-				type: 'SOLID',
-				color: { r: 1, g: 1, b: 1 },
-				opacity: 0.03 + random(seed + i * 10) * 0.05,
-			},
-		];
-
-		// Heavy blur for frosting
-		zone.effects = [
-			{
-				type: 'BACKGROUND_BLUR',
-				radius: (frosting / 100) * 40, // 0-40px
-				visible: true,
-			},
-		];
-
-		zones.push(zone);
-	}
-
-	return zones;
-}
-
-// Utility: Fibonacci-based spacing
-function calculateFibonacciSpacing(
-	count: number,
-	totalWidth: number,
-	seed: number,
-): number[] {
-	const positions: number[] = [];
-	const phi = (1 + Math.sqrt(5)) / 2;
-
-	for (let i = 0; i < count; i++) {
-		// Use golden ratio for natural spacing
-		const t = (i * phi) % 1;
-		const x = t * totalWidth;
-		positions.push(x);
-	}
-
-	return positions.sort((a, b) => a - b);
 }
 
 // Utility: Seeded random

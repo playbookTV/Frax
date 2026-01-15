@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
 type Status = { type: 'error' | 'success'; message: string } | null;
@@ -10,19 +10,31 @@ const App = () => {
 	const [frosting, setFrosting] = useState(50);
 	const [clarity, setClarity] = useState(70);
 	const [refractionIntensity, setRefractionIntensity] = useState(30);
+	const [depth, setDepth] = useState(50);
+	const [dispersion, setDispersion] = useState(20);
+	const [lightIntensity, setLightIntensity] = useState(50);
+	const [lightAngle, setLightAngle] = useState(45);
 	const [quality, setQuality] = useState<'draft' | 'standard' | 'high'>('standard');
 
 	// UI State
 	const [hasSelection, setHasSelection] = useState(false);
 	const [status, setStatus] = useState<Status>(null);
+	const [previewImage, setPreviewImage] = useState<string | null>(null);
 
 	useEffect(() => {
 		const handler = (event: MessageEvent) => {
 			const msg = event.data.pluginMessage ?? event.data;
 			if (!msg || typeof msg !== 'object') return;
 
-			if (msg.type === 'selection-changed' || msg.type === 'init') {
+			if (msg.type === 'selection-changed') {
 				setHasSelection(!!msg.hasSelection);
+				if (!msg.hasSelection) {
+					setPreviewImage(null);
+				}
+			}
+
+			if (msg.type === 'preview-image' && msg.previewImage) {
+				setPreviewImage(`data:image/png;base64,${msg.previewImage}`);
 			}
 
 			if (msg.type === 'error') {
@@ -45,6 +57,10 @@ const App = () => {
 			frosting,
 			clarity,
 			refractionIntensity,
+			depth,
+			dispersion,
+			lightIntensity,
+			lightAngle,
 			blurZoneCount: 5,
 			quality,
 			randomSeed: Date.now(),
@@ -86,6 +102,84 @@ const App = () => {
 			</header>
 
 			{renderStatus()}
+
+			{/* Preview Area */}
+			<div style={{
+				background: previewImage ? '#f7fafc' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+				borderRadius: '8px',
+				height: '120px',
+				position: 'relative',
+				overflow: 'hidden',
+				border: '1px solid #e2e8f0',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center'
+			}}>
+				{previewImage ? (
+					<>
+						{/* Layer image */}
+						<img
+							src={previewImage}
+							alt="Selected layer"
+							style={{
+								position: 'absolute',
+								inset: 0,
+								width: '100%',
+								height: '100%',
+								objectFit: 'contain'
+							}}
+						/>
+						{/* Glass overlay */}
+						<div style={{
+							position: 'absolute',
+							inset: 0,
+							display: 'flex',
+							flexDirection: 'row'
+						}}>
+							{Array.from({ length: Math.min(20, Math.floor(stripeDensity / 4)) }).map((_, i) => {
+								const baseWidth = 100 / Math.min(20, Math.floor(stripeDensity / 4));
+								const vary = (Math.sin(i * 123.456) * (widthVariation / 100));
+								const width = baseWidth * (1 + vary);
+
+								return (
+									<div
+										key={`stripe-${i}`}
+										style={{
+											width: `${width}%`,
+											height: '100%',
+											background: `rgba(255, 255, 255, ${0.1 + (frosting / 100) * 0.2})`,
+											backdropFilter: `blur(${(frosting / 100) * 8}px)`,
+											borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+											opacity: clarity / 100
+										}}
+									/>
+								);
+							})}
+						</div>
+						<div style={{
+							position: 'absolute',
+							bottom: '8px',
+							left: '8px',
+							fontSize: '10px',
+							color: 'rgba(255, 255, 255, 0.9)',
+							textShadow: '0 1px 3px rgba(0,0,0,0.5)',
+							background: 'rgba(0,0,0,0.3)',
+							padding: '2px 6px',
+							borderRadius: '3px'
+						}}>
+							Preview
+						</div>
+					</>
+				) : (
+					<div style={{
+						fontSize: '12px',
+						color: '#a0aec0',
+						textAlign: 'center'
+					}}>
+						Select a layer to preview
+					</div>
+				)}
+			</div>
 
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, overflowY: 'auto' }}>
 				{/* Stripe Density */}
@@ -166,6 +260,83 @@ const App = () => {
 						onChange={(e) => setRefractionIntensity(Number((e.target as HTMLInputElement).value))}
 						style={{ width: '100%' }}
 					/>
+				</div>
+
+				{/* Depth */}
+				<div>
+					<div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#718096', marginBottom: '6px' }}>
+						<span>Depth</span>
+						<span>{depth}</span>
+					</div>
+					<input
+						type="range"
+						min={1}
+						max={100}
+						value={depth}
+						onChange={(e) => setDepth(Number((e.target as HTMLInputElement).value))}
+						style={{ width: '100%' }}
+					/>
+				</div>
+
+				{/* Dispersion */}
+				<div>
+					<div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#718096', marginBottom: '6px' }}>
+						<span>Dispersion</span>
+						<span>{dispersion}%</span>
+					</div>
+					<input
+						type="range"
+						min={0}
+						max={100}
+						value={dispersion}
+						onChange={(e) => setDispersion(Number((e.target as HTMLInputElement).value))}
+						style={{ width: '100%' }}
+					/>
+				</div>
+
+				{/* Lighting Controls */}
+				<div style={{
+					padding: '12px',
+					borderRadius: '8px',
+					background: '#f7fafc',
+					border: '1px solid #edf2f7',
+					display: 'flex',
+					flexDirection: 'column',
+					gap: '12px'
+				}}>
+					<div style={{ fontSize: '11px', fontWeight: 600, color: '#4a5568' }}>Lighting</div>
+
+					{/* Light Intensity */}
+					<div>
+						<div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#718096', marginBottom: '4px' }}>
+							<span>Intensity</span>
+							<span>{lightIntensity}%</span>
+						</div>
+						<input
+							type="range"
+							min={0}
+							max={100}
+							value={lightIntensity}
+							onChange={(e) => setLightIntensity(Number((e.target as HTMLInputElement).value))}
+							style={{ width: '100%' }}
+						/>
+					</div>
+
+					{/* Light Angle */}
+					<div>
+						<div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#718096', marginBottom: '4px' }}>
+							<span>Angle</span>
+							<span>{lightAngle}°</span>
+						</div>
+						<input
+							type="range"
+							min={0}
+							max={360}
+							value={lightAngle}
+							onChange={(e) => setLightAngle(Number((e.target as HTMLInputElement).value))}
+							style={{ width: '100%' }}
+						/>
+					</div>
 				</div>
 
 				{/* Quality */}

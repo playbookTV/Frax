@@ -62,9 +62,30 @@ export default function main() {
 
 function postSelectionState() {
 	const hasSelection = figma.currentPage.selection.length > 0;
+
+	// Send selection state immediately
 	figma.ui.postMessage({
 		type: 'selection-changed',
 		hasSelection,
 	});
-}
 
+	// Export preview image asynchronously (don't block)
+	if (hasSelection) {
+		const node = figma.currentPage.selection[0];
+		if ('exportAsync' in node) {
+			node.exportAsync({
+				format: 'PNG',
+				constraint: { type: 'SCALE', value: 0.5 },
+			}).then(imageBytes => {
+				// Convert to base64 using Figma's built-in function
+				const base64 = figma.base64Encode(imageBytes);
+				figma.ui.postMessage({
+					type: 'preview-image',
+					previewImage: base64,
+				});
+			}).catch(error => {
+				console.error('Failed to export preview:', error);
+			});
+		}
+	}
+}
